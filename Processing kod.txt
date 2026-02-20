@@ -1,0 +1,1278 @@
+// ==========================================
+// PROCESSING KODU - İklim Simülasyonu (Su Sensörü Düzeltmeli)
+// ==========================================
+
+import processing.serial.*;
+
+Serial arduino;
+int aktifMod = 0;
+int potDeger = 0;
+int suDeger = 0;
+
+float yilOrani = 0;
+int mevcutYil = 2026;
+float suOrani = 0;
+
+ArrayList<Bina> binalar = new ArrayList<Bina>();
+ArrayList<Agac> agaclar = new ArrayList<Agac>();
+ArrayList<Partikul> partikuller = new ArrayList<Partikul>();
+ArrayList<YeraltiSiginagi> siginaklar = new ArrayList<YeraltiSiginagi>();
+ArrayList<Bulut> bulutlar = new ArrayList<Bulut>();
+ArrayList<Kus> kuslar = new ArrayList<Kus>();
+ArrayList<Yildiz> yildizlar = new ArrayList<Yildiz>();
+
+color[] gokyuzuKotu = {
+  color(135, 206, 235), color(200, 150, 100), color(180, 100, 60),
+  color(120, 70, 50), color(60, 40, 40)
+};
+
+color[] gokyuzuIyi = {
+  color(255, 200, 150), color(200, 220, 240), color(100, 200, 255),
+  color(80, 180, 255), color(120, 220, 255)
+};
+
+void setup() {
+  fullScreen();
+  String portAdi = "COM3";
+  printArray(Serial.list());
+  
+  try {
+    arduino = new Serial(this, portAdi, 9600);
+    println("Arduino baglandi: " + portAdi);
+  } catch (Exception e) {
+    println("HATA: " + portAdi + " bulunamadi!");
+  }
+  
+  sehirOlustur();
+  
+  // Ağaçları sadece dağ tepeleri için oluştur (yukarıda)
+  for (int i = 0; i < 25; i++) {
+    agaclar.add(new Agac(random(width), random(height/2 - 200, height/2 - 50)));
+  }
+  
+  for (int i = 0; i < 5; i++) {
+    siginaklar.add(new YeraltiSiginagi(random(150, width-150), height - 50));
+  }
+  
+  for (int i = 0; i < 8; i++) {
+    bulutlar.add(new Bulut(random(width), random(50, 200)));
+  }
+  
+  for (int i = 0; i < 20; i++) {
+    kuslar.add(new Kus());
+  }
+  
+  for (int i = 0; i < 100; i++) {
+    yildizlar.add(new Yildiz());
+  }
+}
+
+void draw() {
+  arduinoOku();
+  if (aktifMod == 0) beklemeEkrani();
+  else if (aktifMod == 1) kotuSenaryo();
+  else if (aktifMod == 2) iyiSenaryo();
+}
+
+void arduinoOku() {
+  while (arduino != null && arduino.available() > 0) {
+    String veri = arduino.readStringUntil('\n');
+    if (veri != null) {
+      veri = trim(veri);
+      String[] parcalar = split(veri, "|");
+      for (String p : parcalar) {
+        if (p.startsWith("MOD:")) aktifMod = Integer.parseInt(p.substring(4));
+        else if (p.startsWith("POT:")) potDeger = Integer.parseInt(p.substring(4));
+        else if (p.startsWith("SU:")) suDeger = Integer.parseInt(p.substring(3));
+      }
+    }
+  }
+}
+
+// ==========================================
+// BEKLEME EKRANI
+// ==========================================
+
+void beklemeEkrani() {
+  background(20, 25, 35);
+  
+  for (Yildiz y : yildizlar) {
+    y.parlaklik = random(50, 150);
+    y.ciz();
+  }
+  
+  textAlign(CENTER);
+  fill(255);
+  textSize(56);
+  text("2100: GELECEGIN IKI YUZU", width/2, height/4);
+  
+  fill(180, 220, 255);
+  textSize(24);
+  text("Iklim degisikligi interaktif simulasyonu", width/2, height/4 + 60);
+  
+  cizimKutu(width/4, height/2, 380, 280, color(200, 60, 60), 
+            "SENARYO A", "Ihmal Edilen Dunya", 
+            "Potansiyometre ile yili kontrol et", 
+            "2026 → 2100: Cokus", "BUTON A'ya bas", 0);
+  
+  cizimKutu(width*3/4, height/2, 380, 280, color(60, 200, 60), 
+            "SENARYO B", "Kurtarilan Dunya", 
+            "Su sensoru ile gezegeni besle", 
+            "Kuraklik → Utopia", "BUTON B'ye bas", PI);
+  
+  fill(150, 180, 200);
+  textSize(18);
+  text("Bir senaryo secmek icin butona basin", width/2, height - 80);
+  
+  if (arduino == null) {
+    fill(255, 100, 100);
+    textSize(16);
+    text("UYARI: Arduino baglanti yok!", width/2, height - 40);
+  }
+}
+
+void cizimKutu(float x, float y, float w, float h, color temelRenk, 
+               String baslik, String altBaslik, String aciklama1, 
+               String aciklama2, String butonYazi, float faz) {
+  
+  float parlama = 150 + sin(frameCount * 0.05 + faz) * 30;
+  
+  fill(0, 40);
+  noStroke();
+  rect(x - w/2 + 8, y - h/2 + 8, w, h, 15);
+  
+  fill(red(temelRenk), green(temelRenk), blue(temelRenk), parlama);
+  stroke(255, 120);
+  strokeWeight(2);
+  rect(x - w/2, y - h/2, w, h, 15);
+  
+  fill(0, 30);
+  rect(x - w/2 + 10, y - h/2 + 10, w - 20, h/2 - 10, 10);
+  
+  textAlign(CENTER);
+  
+  fill(255);
+  textSize(32);
+  text(baslik, x, y - h/3 + 10);
+  
+  textSize(20);
+  fill(255, 230, 230);
+  text(altBaslik, x, y - h/6 + 5);
+  
+  textSize(14);
+  fill(220);
+  text(aciklama1, x, y + 15);
+  text(aciklama2, x, y + 40);
+  
+  fill(temelRenk);
+  textSize(16);
+  text(butonYazi, x, y + h/3 - 10);
+}
+
+// ==========================================
+// KOTU SENARYO
+// ==========================================
+
+void kotuSenaryo() {
+  yilOrani = potDeger / 1023.0;
+  mevcutYil = 2026 + (int)(yilOrani * 74);
+  
+  background(araRenk(gokyuzuKotu, yilOrani));
+  
+  if (yilOrani > 0.6) {
+    for (Yildiz y : yildizlar) {
+      y.guncelle(yilOrani);
+      y.ciz();
+    }
+  }
+  
+  if (yilOrani > 0.7) ayCiz(yilOrani);
+  else gunesKotu(yilOrani);
+  
+  for (Bulut b : bulutlar) {
+    b.kotuModGuncelle(yilOrani);
+    b.ciz();
+  }
+  
+  daglarKotu(yilOrani, 0.3);
+  daglarKotu(yilOrani, 0.6);
+  horizonKotu(yilOrani);
+  zeminKotu(yilOrani);
+  
+  for (Bina b : binalar) {
+    b.kotuModGuncelle(yilOrani);
+    b.kotuModCiz();
+  }
+  
+  for (YeraltiSiginagi s : siginaklar) {
+    s.guncelle(yilOrani);
+    s.ciz();
+  }
+  
+  havaEfektleriKotu(yilOrani);
+  uiKotu();
+}
+
+void gunesKotu(float oran) {
+  float x = width * 0.8, y = height * 0.15;
+  color gunesRengi = lerpColor(color(255, 255, 200), color(255, 80, 30), oran);
+  float gunesBoyut = 60 + oran * 40;
+  
+  noStroke();
+  for (int i = 6; i > 0; i--) {
+    fill(red(gunesRengi), green(gunesRengi), blue(gunesRengi), 25);
+    ellipse(x, y, gunesBoyut + i * 20, gunesBoyut + i * 20);
+  }
+  
+  fill(gunesRengi);
+  ellipse(x, y, gunesBoyut, gunesBoyut);
+  
+  if (oran > 0.9) {
+    fill(0, 100);
+    ellipse(x, y, gunesBoyut + 10, gunesBoyut + 10);
+  }
+}
+
+void ayCiz(float oran) {
+  float x = width * 0.8, y = height * 0.15;
+  float ayParlaklik = (oran - 0.7) / 0.3;
+  
+  noStroke();
+  fill(200, 200, 220, 255 * ayParlaklik);
+  ellipse(x, y, 80, 80);
+  
+  fill(150, 150, 170, 150 * ayParlaklik);
+  ellipse(x - 15, y + 10, 15, 12);
+  ellipse(x + 20, y - 5, 20, 18);
+  
+  for (int i = 4; i > 0; i--) {
+    fill(200, 200, 255, 15 * ayParlaklik);
+    ellipse(x, y, 80 + i * 25, 80 + i * 25);
+  }
+}
+
+void daglarKotu(float oran, float katman) {
+  noStroke();
+  color dagRengi = lerpColor(
+    color(80 + katman * 40, 100 + katman * 20, 80 + katman * 20),
+    color(120 - katman * 20, 90 - katman * 10, 60), oran
+  );
+  fill(dagRengi);
+  
+  float yOffset = height/2 - 50 * katman;
+  
+  beginShape();
+  vertex(0, height/2);
+  for (int x = 0; x <= width; x += 20) {
+    float y = yOffset - noise(x * 0.005 + katman * 100) * 150 * (1 + oran * 0.5);
+    y = lerp(y, height/2 - 20, oran * 0.6);
+    vertex(x, y);
+  }
+  vertex(width, height/2);
+  endShape(CLOSE);
+}
+
+void horizonKotu(float oran) {
+  noStroke();
+  color dagRengi = lerpColor(color(100, 120, 100), color(140, 100, 70), oran);
+  fill(dagRengi);
+  
+  beginShape();
+  vertex(0, height/2);
+  for (int x = 0; x <= width; x += 20) {
+    float y = height/2 - 80 - noise(x * 0.01 + 200) * 100;
+    y = lerp(y, height/2 - 10, oran * 0.8);
+    vertex(x, y);
+  }
+  vertex(width, height/2);
+  endShape(CLOSE);
+}
+
+void zeminKotu(float oran) {
+  for (int y = height/2; y < height; y += 5) {
+    float inter = map(y, height/2, height, 0, 1);
+    color zemin = lerpColor(
+      lerpColor(color(100, 120, 80), color(180, 160, 120), oran),
+      color(140, 120, 90), inter
+    );
+    stroke(zemin);
+    line(0, y, width, y);
+  }
+  
+  if (oran > 0.2) {
+    stroke(100, 80, 60, 255 * oran);
+    strokeWeight(1 + oran * 2);
+    for (int i = 0; i < (int)(oran * 25); i++) {
+      float x = width * (i / 25.0) + noise(i) * 50;
+      float y = height/2 + 30 + noise(i * 2) * 250;
+      line(x, y, x + random(-50, 50) * oran, y + random(40, 100) * oran);
+    }
+  }
+  
+  if (oran > 0.85) {
+    for (int i = 0; i < 5; i++) {
+      float x = width * (0.2 + i * 0.15);
+      float y = height/2 + 100 + sin(frameCount * 0.1 + i) * 20;
+      fill(255, 100 + random(100), 50, 150 + random(50));
+      noStroke();
+      ellipse(x, y, 30 + random(20), 15 + random(10));
+    }
+  }
+  
+  if (oran > 0.9) {
+    fill(255, 0, 0, 30 + sin(frameCount * 0.1) * 20);
+    noStroke();
+    rect(0, height/2, width, height/2);
+  }
+}
+
+void havaEfektleriKotu(float oran) {
+  int katmanSayisi = (int)(oran * 3) + 1;
+  for (int k = 0; k < katmanSayisi; k++) {
+    int partikulSayisi = (int)(oran * 5);
+    for (int i = 0; i < partikulSayisi; i++) {
+      partikuller.add(new Partikul("toz", k));
+    }
+  }
+  
+  if (oran > 0.85 && frameCount % 40 == 0) partikuller.add(new Partikul("radyasyon", 0));
+  if (oran > 0.4 && frameCount % 10 == 0) partikuller.add(new Partikul("duman", 0));
+  
+  for (int i = partikuller.size() - 1; i >= 0; i--) {
+    Partikul p = partikuller.get(i);
+    p.kotuGuncelle(oran);
+    p.ciz();
+    if (p.yasam <= 0) partikuller.remove(i);
+  }
+}
+
+void uiKotu() {
+  fill(20, 20, 30, 220);
+  stroke(150, 50, 50);
+  strokeWeight(2);
+  rect(20, 20, 400, 200, 15);
+  
+  fill(255, 150, 150);
+  textAlign(LEFT);
+  textSize(20);
+  text("SENARYO A: IHMAL EDILEN DUNYA", 40, 55);
+  
+  fill(255);
+  textSize(40);
+  text("YIL: " + mevcutYil, 40, 100);
+  
+  textSize(14);
+  fill(255, 100, 100);
+  text("Sera gazi: %" + (int)(yilOrani * 150), 40, 130);
+  fill(100, 255, 100);
+  text("Yasanabilirlik: %" + (int)((1-yilOrani) * 100), 40, 150);
+  
+  textSize(15);
+  String durum;
+  if (yilOrani < 0.2) durum = "Durum: Normal (Ama ihmale baslandi)";
+  else if (yilOrani < 0.4) durum = "Durum: Erken uyarilar gormezden gelindi";
+  else if (yilOrani < 0.6) durum = "Durum: Su kaynaklari tukeniyor";
+  else if (yilOrani < 0.8) durum = "Durum: Kitlesel gocler basladi";
+  else durum = "Durum: Yuzey yasanmaz - Yeralti signaklari";
+  
+  fill(lerpColor(color(200), color(255, 100, 100), yilOrani));
+  text(durum, 40, 175);
+  
+  stroke(255);
+  noFill();
+  rect(40, 185, 250, 12);
+  fill(255, 100, 100);
+  noStroke();
+  rect(40, 185, yilOrani * 250, 12);
+  
+  if (yilOrani > 0.95) {
+    fill(255, 0, 0, 150 + sin(frameCount * 0.3) * 100);
+    textAlign(CENTER);
+    textSize(48);
+    text("INSANLIK YERALTINDA", width/2, height/3);
+  }
+  
+  fill(150);
+  textSize(13);
+  textAlign(RIGHT);
+  text("Diger senaryo icin butona bas", width - 40, height - 40);
+}
+
+// ==========================================
+// IYI SENARYO (Düzeltilmiş - Su Sensörü)
+// ==========================================
+
+void iyiSenaryo() {
+  // DÜZELTME: Su sensörü 0-650 aralığında çalışıyor
+  // Doğrusal ölçekleme: 0 = kuru, 650 = tamamen suda
+  // Bu sayede kontrollü, tahmin edilebilir bir artış olur
+  suOrani = constrain(map(suDeger, 0, 650, 0, 1), 0, 1);
+  
+  // İsteğe bağlı: Daha yumuşak geçiş için (açıklamalı)
+  // Eğer sensör değerleri çok dalgalıysa bu satırı aktif edin:
+  // suOrani = lerp(suOrani, constrain(map(suDeger, 0, 650, 0, 1), 0, 1), 0.1);
+  
+  background(araRenk(gokyuzuIyi, suOrani));
+  
+  gunesIyi(suOrani);
+  
+  for (Bulut b : bulutlar) {
+    b.iyiModGuncelle(suOrani);
+    b.ciz();
+  }
+  
+  for (Kus k : kuslar) {
+    k.guncelle(suOrani);
+    k.ciz();
+  }
+  
+  // GÖKKUŞAĞI - Havada, çok şeffaf
+  if (suOrani > 0.7) gokkusagiCiz();
+  
+  // DAĞLAR (arka plan)
+  daglarIyi(suOrani, 0.3);
+  daglarIyi(suOrani, 0.6);
+  
+  // AĞAÇLAR - Sadece dağ tepelerinde (horizondan ÖNCE)
+  for (Agac a : agaclar) {
+    a.iyiModGuncelle(suOrani);
+    a.iyiModCiz();
+  }
+  
+  horizonIyi(suOrani);
+  zeminIyi(suOrani);
+  
+  for (Bina b : binalar) {
+    b.iyiModGuncelle(suOrani);
+    b.iyiModCiz();
+  }
+  
+  havaEfektleriIyi(suOrani);
+  uiIyi();
+}
+
+void gunesIyi(float oran) {
+  float x = width * 0.75, y = height * 0.12;
+  color gunesRengi = lerpColor(color(255, 200, 100), color(255, 255, 240), oran);
+  float gunesBoyut = 70 + oran * 30;
+  
+  if (oran > 0.3) {
+    pushMatrix();
+    translate(x, y);
+    rotate(frameCount * 0.01);
+    for (int i = 0; i < 12; i++) {
+      float aci = radians(i * 30);
+      float uzunluk = 80 + oran * 60;
+      stroke(255, 255, 200, 80 * oran);
+      strokeWeight(3);
+      line(cos(aci) * gunesBoyut/2, sin(aci) * gunesBoyut/2, 
+           cos(aci) * uzunluk, sin(aci) * uzunluk);
+    }
+    popMatrix();
+  }
+  
+  noStroke();
+  for (int i = 8; i > 0; i--) {
+    fill(red(gunesRengi), green(gunesRengi), blue(gunesRengi), 30);
+    ellipse(x, y, gunesBoyut + i * 18, gunesBoyut + i * 18);
+  }
+  
+  fill(gunesRengi);
+  ellipse(x, y, gunesBoyut, gunesBoyut);
+  
+  fill(255, 200);
+  ellipse(x - gunesBoyut * 0.2, y - gunesBoyut * 0.1, gunesBoyut * 0.3, gunesBoyut * 0.25);
+}
+
+void gokkusagiCiz() {
+  // ÇOK ŞEFFAF GÖKKUŞAĞI - Silüet gibi
+  float merkezX = width * 0.6;
+  float merkezY = height * 0.35; // Daha yukarıda
+  
+  noFill();
+  
+  color[] renkler = {
+    color(255, 0, 0), color(255, 127, 0), color(255, 255, 0),
+    color(0, 255, 0), color(0, 0, 255), color(75, 0, 130), color(143, 0, 255)
+  };
+  
+  // Çok şeffaf, silüet gibi
+  for (int i = 0; i < 7; i++) {
+    stroke(renkler[i], 40 * suOrani); // Çok düşük opaklık (40)
+    strokeWeight(20); // Kalın ama şeffaf
+    arc(merkezX, merkezY, 400 - i * 25, 400 - i * 25, PI + 0.5, TWO_PI - 0.5);
+  }
+}
+
+void daglarIyi(float oran, float katman) {
+  noStroke();
+  color dagRengi = lerpColor(
+    color(120 - katman * 20, 100 - katman * 10, 80),
+    color(80 + katman * 30, 140 + katman * 20, 80 + katman * 10), oran
+  );
+  fill(dagRengi);
+  
+  float yOffset = height/2 - 80 * katman;
+  
+  beginShape();
+  vertex(0, height/2);
+  for (int x = 0; x <= width; x += 15) {
+    float y = yOffset - noise(x * 0.004 + katman * 100) * 120;
+    y -= oran * 30 * katman;
+    vertex(x, y);
+  }
+  vertex(width, height/2);
+  endShape(CLOSE);
+  
+  // AĞAÇLAR - Sadece dağ tepelerine
+  if (oran > 0.4) {
+    fill(34, 100 + oran * 50, 34);
+    for (int x = 0; x < width; x += 40) {
+      // Dağ tepesi yüksekliği
+      float dagY = yOffset - noise(x * 0.004 + katman * 100) * 120 - oran * 30 * katman;
+      
+      // Sadece görünür ve yukarıda olan tepelere
+      if (dagY < height/2 - 40 && dagY > height/2 - 250) {
+        // Ağaç gövde
+        fill(101, 67, 33);
+        rect(x - 2, dagY, 4, 12);
+        
+        // Ağaç yaprak (üçgen)
+        fill(34, 120 + oran * 40, 34);
+        triangle(x, dagY - 5, x - 8, dagY + 15, x + 8, dagY + 15);
+        
+        // RÜZGAR TÜRBİNİ (yüksek su, aralıklı)
+        if (oran > 0.75 && (x / 40) % 4 == 0 && katman > 0.4) {
+          pushMatrix();
+          translate(x, dagY);
+          
+          fill(220);
+          noStroke();
+          rect(-2, 0, 4, -30);
+          
+          pushMatrix();
+          translate(0, -30);
+          rotate(frameCount * 0.05);
+          fill(240);
+          for (int i = 0; i < 3; i++) {
+            rotate(TWO_PI / 3);
+            ellipse(0, -15, 4, 30);
+          }
+          fill(100);
+          ellipse(0, 0, 6, 6);
+          popMatrix();
+          
+          popMatrix();
+        }
+      }
+    }
+  }
+}
+
+void horizonIyi(float oran) {
+  noStroke();
+  color zeminRengi = lerpColor(color(140, 120, 100), color(100, 160, 100), oran);
+  fill(zeminRengi);
+  
+  beginShape();
+  vertex(0, height/2);
+  for (int x = 0; x <= width; x += 20) {
+    float y = height/2 - 30 - noise(x * 0.008) * 60;
+    vertex(x, y);
+  }
+  vertex(width, height/2);
+  endShape(CLOSE);
+}
+
+void zeminIyi(float oran) {
+  // DÜZGÜN GRADYAN ZEMİN - Çizgisiz
+  noStroke();
+  for (int y = height/2; y < height; y++) {
+    float inter = map(y, height/2, height, 0, 1);
+    color zemin = lerpColor(
+      lerpColor(color(180, 160, 130), color(100, 140, 80), oran),
+      lerpColor(color(140, 120, 90), color(60, 120, 60), oran),
+      inter
+    );
+    fill(zemin);
+    rect(0, y, width, 1);
+  }
+  
+  // Çim detayları (ince)
+  if (oran > 0.3) {
+    stroke(50 + oran * 50, 100 + oran * 80, 50 + oran * 30, 150);
+    strokeWeight(1);
+    for (int x = 0; x < width; x += 6) {
+      float y = height/2 + 20 + noise(x * 0.1) * 100;
+      float yukseklik = 5 + oran * 15;
+      line(x, y, x + random(-2, 2), y - yukseklik);
+    }
+  }
+  
+  // Çiçekler
+  if (oran > 0.6) {
+    noStroke();
+    for (int x = 0; x < width; x += 40) {
+      float y = height/2 + 40 + noise(x) * 150;
+      
+      fill(0, 80, 0);
+      rect(x - 1, y, 2, 12);
+      
+      fill(200 + random(55), 100 + random(155), 100 + random(155));
+      float boyut = 5 + oran * 4;
+      ellipse(x, y, boyut, boyut);
+    }
+  }
+  
+  // SU - Sadece aşağıda
+  if (oran > 0.75) {
+    for (int i = 3; i > 0; i--) {
+      fill(100 + i * 30, 150 + i * 20, 255, 60);
+      beginShape();
+      vertex(0, height);
+      for (int x = 0; x <= width; x += 50) {
+        float dalga = sin(x * 0.01 + frameCount * 0.03) * 15 * i;
+        vertex(x, height/2 + 80 + dalga + i * 10);
+      }
+      vertex(width, height);
+      endShape(CLOSE);
+    }
+    
+    fill(255, 150);
+    for (int i = 0; i < 10; i++) {
+      float x = (frameCount * 2 + i * 100) % width;
+      float y = height/2 + 90 + sin(x * 0.02) * 10;
+      ellipse(x, y, 6, 3);
+    }
+  }
+}
+
+void havaEfektleriIyi(float oran) {
+  if (oran > 0.4) {
+    int sayi = (int)((oran - 0.4) * 15);
+    for (int i = 0; i < sayi; i++) {
+      if (random(1) < 0.05) partikuller.add(new Partikul("polen", 0));
+    }
+  }
+  
+  if (oran > 0.6 && frameCount % 20 == 0) partikuller.add(new Partikul("isik", 0));
+  
+  for (int i = partikuller.size() - 1; i >= 0; i--) {
+    Partikul p = partikuller.get(i);
+    p.iyiGuncelle(oran);
+    p.ciz();
+    if (p.yasam <= 0) partikuller.remove(i);
+  }
+}
+
+void uiIyi() {
+  fill(30, 50, 40, 200);
+  stroke(100, 255, 150);
+  strokeWeight(2);
+  rect(20, 20, 400, 200, 15);
+  
+  fill(150, 255, 150);
+  textAlign(LEFT);
+  textSize(20);
+  text("SENARYO B: KURTARILAN DUNYA", 40, 55);
+  
+  fill(255);
+  textSize(36);
+  text("SU: %" + (int)(suOrani * 100), 40, 100);
+  
+  textSize(14);
+  fill(100, 200, 255);
+  text("Oksijen seviyesi: %" + (int)(suOrani * 120), 40, 130);
+  fill(150, 255, 150);
+  text("Biyocesitlilik: %" + (int)(suOrani * 100), 40, 150);
+  
+  textSize(15);
+  String durum;
+  if (suOrani < 0.2) durum = "Durum: Kurtarma baslamali!";
+  else if (suOrani < 0.4) durum = "Durum: Ilk yesil alanlar...";
+  else if (suOrani < 0.6) durum = "Durum: Yenilenebilir enerji devrede";
+  else if (suOrani < 0.8) durum = "Durum: Ekosistem toparlaniyor";
+  else durum = "Durum: Surdurulebilir utopia!";
+  
+  fill(lerpColor(color(255, 200, 100), color(100, 255, 100), suOrani));
+  text(durum, 40, 175);
+  
+  stroke(255);
+  noFill();
+  rect(40, 185, 250, 12);
+  fill(100, 200, 255);
+  noStroke();
+  rect(40, 185, suOrani * 250, 12);
+  
+  // ==========================================
+  // GELİŞTİRİLMİŞ "GEZEGEN KURTARILDI!" YAZISI
+  // ==========================================
+  if (suOrani > 0.9) {
+    // Arka plan parlama efekti - büyük ve yumuşak
+    for (int i = 5; i > 0; i--) {
+      float parlama = 100 + sin(frameCount * 0.1 + i * 0.5) * 80;
+      fill(100 + i * 30, 255, 150 + i * 20, parlama * 0.4);
+      noStroke();
+      ellipse(width/2, height/3, 700 + i * 50, 200 + i * 30);
+    }
+    
+    // Ana metin - Gelişmiş görsel efektler
+    textAlign(CENTER);
+    textSize(72);
+    
+    // Dış gölge (derinlik için)
+    fill(0, 80);
+    text("GEZEGEN KURTARILDI!", width/2 + 4, height/3 + 4);
+    fill(0, 60);
+    text("GEZEGEN KURTARILDI!", width/2 + 2, height/3 + 2);
+    
+    // Ana renk - Animasyonlu gökkuşağı gradyanı
+    float renkDegisimi = sin(frameCount * 0.03);
+    color renk1 = color(50 + renkDegisimi * 50, 255, 100 + renkDegisimi * 50);
+    color renk2 = color(100, 200 + renkDegisimi * 55, 255);
+    color anaRenk = lerpColor(renk1, renk2, renkDegisimi * 0.5 + 0.5);
+    
+    // Parlak outline
+    fill(255, 220);
+    stroke(red(anaRenk), green(anaRenk), blue(anaRenk), 255);
+    strokeWeight(6);
+    text("GEZEGEN KURTARILDI!", width/2, height/3);
+    
+    // Ana metin
+    fill(anaRenk);
+    stroke(255, 180);
+    strokeWeight(3);
+    text("GEZEGEN KURTARILDI!", width/2, height/3);
+    
+    // İç parlama
+    fill(255, 150 + sin(frameCount * 0.2) * 100);
+    textSize(72);
+    noStroke();
+    text("GEZEGEN KURTARILDI!", width/2, height/3);
+    
+    // Altın sarısı vurgu çizgisi - Animasyonlu
+    noStroke();
+    float cizgiParlaklik = 200 + sin(frameCount * 0.15) * 55;
+    fill(255, 215, 0, cizgiParlaklik);
+    rect(width/2 - 300, height/3 + 35, 600, 8, 4);
+    
+    // Ekstra dekoratif çizgiler
+    fill(255, 255, 200, 150);
+    rect(width/2 - 200, height/3 + 50, 400, 3, 2);
+    
+    // Kutlama partikülleri - Yoğun ve çeşitli
+    if (frameCount % 3 == 0) {
+      for (int i = 0; i < 5; i++) {
+        partikuller.add(new Partikul("kutlama", 0));
+      }
+    }
+    
+    // İkonlar (yıldızlar)
+    fill(255, 255, 0, 200 + sin(frameCount * 0.3) * 55);
+    noStroke();
+    yildizCiz(width/2 - 350, height/3, 30);
+    yildizCiz(width/2 + 350, height/3, 30);
+    yildizCiz(width/2 - 280, height/3 - 40, 20);
+    yildizCiz(width/2 + 280, height/3 - 40, 20);
+  }
+  
+  fill(200);
+  textSize(13);
+  textAlign(RIGHT);
+  text("Diger senaryo icin butona bas", width - 40, height - 40);
+}
+
+// Yıldız çizim yardımcı fonksiyonu
+void yildizCiz(float x, float y, float boyut) {
+  pushMatrix();
+  translate(x, y);
+  rotate(frameCount * 0.02);
+  beginShape();
+  for (int i = 0; i < 10; i++) {
+    float aci = radians(i * 36 - 90);
+    float r = (i % 2 == 0) ? boyut : boyut * 0.4;
+    vertex(cos(aci) * r, sin(aci) * r);
+  }
+  endShape(CLOSE);
+  popMatrix();
+}
+
+color araRenk(color[] palet, float oran) {
+  int indeks = (int)(oran * (palet.length - 1));
+  indeks = constrain(indeks, 0, palet.length - 2);
+  float altOran = (oran * (palet.length - 1)) - indeks;
+  return lerpColor(palet[indeks], palet[indeks + 1], altOran);
+}
+
+void sehirOlustur() {
+  for (int i = 0; i < 15; i++) {
+    binalar.add(new Bina(random(80, width-80), height/2, random(50, 100), random(120, 300)));
+  }
+}
+
+// ==========================================
+// SINIFLAR
+// ==========================================
+
+class Bina {
+  float x, y, w, h;
+  float yikiklik = 0;
+  float yesillik = 0;
+  color temelRenk;
+  
+  Bina(float x, float y, float w, float h) {
+    this.x = x;
+    this.y = y;
+    this.w = w;
+    this.h = h;
+    this.temelRenk = color(random(120, 160), random(120, 160), random(140, 180));
+  }
+  
+  void kotuModGuncelle(float oran) {
+    yikiklik = oran;
+  }
+  
+  void kotuModCiz() {
+    pushMatrix();
+    translate(x, y);
+    
+    float egim = sin(x * 0.01) * yikiklik * 0.15;
+    rotate(egim);
+    
+    fill(0, 50);
+    noStroke();
+    rect(10, 10, w, h * (1 - yikiklik * 0.4));
+    
+    color binaRengi = lerpColor(temelRenk, color(80, 60, 50), yikiklik);
+    fill(binaRengi);
+    stroke(lerpColor(color(100), color(50), yikiklik));
+    strokeWeight(2);
+    
+    float gercekH = h * (1 - yikiklik * 0.4);
+    rect(0, -gercekH, w, gercekH);
+    
+    fill(yikiklik > 0.6 ? color(40) : color(200, 220, 255, 150));
+    noStroke();
+    for (int px = 8; px < w - 8; px += 15) {
+      for (int py = 15; py < gercekH - 10; py += 25) {
+        if (yikiklik < 0.8 || random(1) > 0.3) {
+          rect(px, -gercekH + py, 10, 15);
+        }
+      }
+    }
+    
+    if (yikiklik > 0.4) {
+      stroke(30, 100 * yikiklik);
+      strokeWeight(2 + yikiklik * 2);
+      line(w * 0.2, -gercekH * 0.3, w * 0.6, -gercekH * 0.7);
+    }
+    
+    if (yikiklik < 0.5) {
+      fill(lerpColor(color(80), color(60), yikiklik));
+      rect(w/2 - 8, -gercekH - 40, 16, 40);
+      if (frameCount % 10 == 0) {
+        partikuller.add(new Partikul("duman", 0, x + w/2, y - gercekH - 50));
+      }
+    }
+    
+    if (yikiklik > 0.85) {
+      fill(50, 40, 30);
+      beginShape();
+      vertex(0, 0);
+      vertex(w * 0.3, -30);
+      vertex(w * 0.7, -20);
+      vertex(w, 0);
+      endShape(CLOSE);
+    }
+    
+    popMatrix();
+  }
+  
+  void iyiModGuncelle(float oran) {
+    yesillik = oran;
+  }
+  
+  void iyiModCiz() {
+    pushMatrix();
+    translate(x, y);
+    
+    color binaRengi = lerpColor(color(180, 190, 200), color(220, 240, 230), yesillik);
+    fill(binaRengi);
+    stroke(lerpColor(color(150), color(100, 200, 150), yesillik));
+    strokeWeight(2);
+    rect(0, -h, w, h);
+    
+    for (int px = 10; px < w - 10; px += 20) {
+      for (int py = 15; py < h - 15; py += 30) {
+        float parlama = 0.3 + yesillik * 0.5 + sin(frameCount * 0.02 + px + py) * 0.1;
+        fill(200 + parlama * 55, 220 + parlama * 35, 255, 150 + parlama * 100);
+        noStroke();
+        rect(px, -h + py, 12, 20);
+      }
+    }
+    
+    if (yesillik > 0.4) {
+      fill(60, 100, 60);
+      rect(-5, -h - 12, w + 10, 12);
+      
+      stroke(34, 100, 34);
+      strokeWeight(2);
+      for (int i = 10; i < w - 10; i += 20) {
+        float bitkiY = -h - 12;
+        line(i, bitkiY, i, bitkiY - 8 - yesillik * 10);
+        noStroke();
+        fill(50 + yesillik * 50, 150 + yesillik * 50, 50);
+        ellipse(i, bitkiY - 8 - yesillik * 10, 6, 6);
+      }
+    }
+    
+    if (yesillik > 0.6) {
+      fill(0, 40, 80);
+      stroke(100, 150, 200);
+      strokeWeight(1);
+      
+      pushMatrix();
+      translate(w/2, -h - 8);
+      rotate(radians(-20));
+      rect(-25, -15, 50, 30);
+      
+      stroke(50, 100, 150);
+      for (int i = -20; i < 25; i += 10) line(i, -15, i, 15);
+      for (int i = -10; i < 15; i += 10) line(-25, i, 25, i);
+      
+      if (yesillik > 0.75) {
+        noStroke();
+        fill(200, 255, 255, 100 + sin(frameCount * 0.1) * 50);
+        rect(-25, -15, 50, 30);
+      }
+      popMatrix();
+    }
+    
+    popMatrix();
+  }
+}
+
+class Agac {
+  float x, y, boyut = 0, hedefBoyut;
+  
+  Agac(float x, float y) {
+    this.x = x;
+    this.y = y;
+    this.hedefBoyut = random(40, 80);
+  }
+  
+  void iyiModGuncelle(float oran) {
+    // Sadece yukarıda (dağ tepelerinde) görünsün
+    if (y > height/2 - 50) boyut = 0; // Aşağıdaysa gösterme
+    else boyut = lerp(boyut, hedefBoyut * oran, 0.03);
+  }
+  
+  void iyiModCiz() {
+    if (boyut < 5 || y > height/2 - 30) return; // Güvenlik kontrolü
+    
+    fill(101, 67, 33);
+    noStroke();
+    rect(x - boyut/8, y, boyut/4, boyut/3);
+    
+    color yaprakRengi = lerpColor(color(180, 140, 80), color(34, 139, 34), boyut/hedefBoyut);
+    fill(yaprakRengi);
+    
+    // Yaprak kümesi
+    ellipse(x, y - boyut/2, boyut, boyut * 0.8);
+    ellipse(x - boyut/3, y - boyut/3, boyut * 0.6, boyut * 0.5);
+    ellipse(x + boyut/3, y - boyut/3, boyut * 0.6, boyut * 0.5);
+  }
+}
+
+class YeraltiSiginagi {
+  float x, y, aciklik = 0;
+  
+  YeraltiSiginagi(float x, float y) {
+    this.x = x;
+    this.y = y;
+  }
+  
+  void guncelle(float oran) {
+    float hedefAciklik = (oran > 0.7) ? 1 : 0;
+    aciklik = lerp(aciklik, hedefAciklik, 0.03);
+  }
+  
+  void ciz() {
+    if (aciklik < 0.01) return;
+    
+    pushMatrix();
+    translate(x, y);
+    
+    fill(60, 50, 40);
+    stroke(40, 30, 20);
+    strokeWeight(2);
+    
+    for (int i = 0; i < 5; i++) {
+      float yPos = -i * 15 * aciklik;
+      rect(-40 + i * 5, yPos, 80 - i * 10, 12);
+    }
+    
+    noStroke();
+    fill(255, 200, 100, 150 * aciklik + sin(frameCount * 0.1) * 30);
+    ellipse(0, -60 * aciklik, 60 * aciklik, 40 * aciklik);
+    
+    if (aciklik > 0.6) {
+      float yanipSönme = sin(frameCount * 0.2) > 0 ? 255 : 100;
+      fill(255, 0, 0, yanipSönme);
+      triangle(-30, -80 * aciklik, -40, -60 * aciklik, -20, -60 * aciklik);
+      triangle(30, -80 * aciklik, 20, -60 * aciklik, 40, -60 * aciklik);
+    }
+    
+    if (aciklik > 0.8) {
+      fill(30, 100 * aciklik);
+      for (int i = 0; i < 3; i++) {
+        float xPos = sin(frameCount * 0.02 + i * 2) * 20;
+        float yPos = -30 - i * 10;
+        ellipse(xPos, yPos, 8, 8);
+        rect(xPos - 3, yPos, 6, 12);
+      }
+    }
+    
+    popMatrix();
+  }
+}
+
+class Bulut {
+  float x, y, hiz;
+  float[] parcalar;
+  int tip;
+  
+  Bulut(float x, float y) {
+    this.x = x;
+    this.y = y;
+    this.hiz = random(0.3, 0.8);
+    this.parcalar = new float[5];
+    for (int i = 0; i < 5; i++) parcalar[i] = random(30, 60);
+  }
+  
+  void kotuModGuncelle(float oran) {
+    tip = oran > 0.5 ? 1 : 0;
+    hiz = 0.5 + oran * 2;
+    x += hiz;
+    if (x > width + 100) x = -100;
+  }
+  
+  void iyiModGuncelle(float oran) {
+    tip = 0;
+    hiz = 0.3 + oran * 0.5;
+    x += hiz;
+    if (x > width + 100) x = -100;
+  }
+  
+  void ciz() {
+    noStroke();
+    if (tip == 1) {
+      fill(80, 70, 70, 200);
+      for (int i = 0; i < parcalar.length; i++) {
+        ellipse(x + i * 30, y + sin(frameCount * 0.05 + i) * 10, parcalar[i] * 1.5, parcalar[i]);
+      }
+      if (random(1) < 0.02) {
+        stroke(255, 255, 200, 200);
+        strokeWeight(3);
+        float x1 = x + 60, y1 = y + 30;
+        for (int i = 0; i < 5; i++) {
+          float x2 = x1 + random(-20, 20);
+          float y2 = y1 + random(20, 40);
+          line(x1, y1, x2, y2);
+          x1 = x2;
+          y1 = y2;
+        }
+      }
+    } else {
+      fill(255, 255, 255, 180);
+      for (int i = 0; i < parcalar.length; i++) {
+        ellipse(x + i * 25, y, parcalar[i], parcalar[i] * 0.8);
+      }
+    }
+  }
+}
+
+class Kus {
+  float x, y, hiz, aci;
+  
+  Kus() {
+    this.x = random(width);
+    this.y = random(50, height/2);
+    this.hiz = random(2, 4);
+    this.aci = 0;
+  }
+  
+  void guncelle(float oran) {
+    if (oran < 0.4) return;
+    float gorunurluk = (oran - 0.4) / 0.6;
+    x += hiz * gorunurluk;
+    y += sin(frameCount * 0.05 + x * 0.01) * 2;
+    aci = sin(frameCount * 0.1) * 0.3;
+    if (x > width + 50) {
+      x = -50;
+      y = random(50, height/2 - 100 * oran);
+    }
+  }
+  
+  void ciz() {
+    if (suOrani < 0.4) return;
+    float gorunurluk = (suOrani - 0.4) / 0.6;
+    
+    pushMatrix();
+    translate(x, y);
+    rotate(aci);
+    fill(255, 255 * gorunurluk);
+    noStroke();
+    
+    float kanatAcisi = sin(frameCount * 0.3) * 0.5;
+    pushMatrix();
+    rotate(-kanatAcisi);
+    ellipse(-15, -5, 25, 12);
+    popMatrix();
+    
+    pushMatrix();
+    rotate(kanatAcisi);
+    ellipse(15, -5, 25, 12);
+    popMatrix();
+    
+    ellipse(0, 0, 20, 10);
+    popMatrix();
+  }
+}
+
+class Yildiz {
+  float x, y, parlaklik;
+  
+  Yildiz() {
+    this.x = random(width);
+    this.y = random(height/2);
+    this.parlaklik = random(100, 255);
+  }
+  
+  void guncelle(float oran) {
+    parlaklik = random(100, 255) * oran;
+  }
+  
+  void ciz() {
+    if (parlaklik < 10) return;
+    fill(255, 255, 220, parlaklik);
+    noStroke();
+    ellipse(x, y, random(2, 4), random(2, 4));
+    if (random(1) < 0.1) {
+      stroke(255, parlaklik * 0.5);
+      line(x - 5, y, x + 5, y);
+      line(x, y - 5, x, y + 5);
+    }
+  }
+}
+
+class Partikul {
+  float x, y, vx, vy, yasam;
+  String tip;
+  color renk;
+  int katman;
+  
+  Partikul(String tip, int katman) {
+    this.tip = tip;
+    this.katman = katman;
+    x = random(width);
+    y = random(height);
+    
+    if (tip.equals("toz")) {
+      vx = random(1, 4) + katman;
+      vy = random(-0.5, 0.5);
+      renk = color(180 + random(40), 150 + random(40), 100 + random(40));
+      yasam = 200;
+    } else if (tip.equals("radyasyon")) {
+      vx = random(-0.5, 0.5);
+      vy = random(-1, -0.5);
+      renk = color(0, 255, 100);
+      yasam = 255;
+    } else if (tip.equals("duman")) {
+      vx = random(-0.5, 0.5);
+      vy = random(-2, -0.5);
+      renk = color(80);
+      yasam = 150;
+    } else if (tip.equals("polen")) {
+      vx = random(-1, 1);
+      vy = random(-0.5, -1.5);
+      renk = color(255, 255, 200);
+      yasam = 300;
+    } else if (tip.equals("isik")) {
+      vx = random(-0.2, 0.2);
+      vy = random(-0.5, 0.5);
+      renk = color(255, 255, 220);
+      yasam = 200;
+    } else if (tip.equals("kutlama")) {
+      vx = random(-4, 4);
+      vy = random(-8, -3);
+      renk = color(random(100, 255), random(150, 255), random(100, 200));
+      yasam = 400;
+      x = width/2 + random(-350, 350);
+      y = height/3 + random(-80, 80);
+    }
+  }
+  
+  Partikul(String tip, int katman, float x, float y) {
+    this(tip, katman);
+    this.x = x;
+    this.y = y;
+  }
+  
+  void kotuGuncelle(float oran) {
+    x += vx * (1 + oran);
+    y += vy;
+    yasam -= 1;
+    if (tip.equals("toz")) y += sin(x * 0.01) * 0.5;
+    if (x > width) x = 0;
+    if (x < 0) x = width;
+  }
+  
+  void iyiGuncelle(float oran) {
+    x += vx;
+    y += vy;
+    yasam -= 0.5;
+    if (tip.equals("polen")) x += sin(y * 0.02 + frameCount * 0.02) * 0.5;
+    if (tip.equals("kutlama")) {
+      vy += 0.15; // Yerçekimi
+      vx *= 0.98; // Sürtünme
+      yasam -= 0.8;
+    }
+    if (x > width) x = 0;
+    if (x < 0) x = width;
+  }
+  
+  void ciz() {
+    noStroke();
+    fill(red(renk), green(renk), blue(renk), yasam);
+    
+    if (tip.equals("radyasyon")) {
+      pushMatrix();
+      translate(x, y);
+      rotate(frameCount * 0.05);
+      fill(0, 255, 100, yasam);
+      ellipse(0, 0, 10, 10);
+      for (int i = 0; i < 3; i++) {
+        rotate(TWO_PI / 3);
+        ellipse(0, -8, 4, 8);
+      }
+      popMatrix();
+    } else if (tip.equals("isik")) {
+      fill(255, 255, 200, yasam * 0.6);
+      ellipse(x, y, 3, 8);
+    } else if (tip.equals("kutlama")) {
+      // Kutlama partikülleri - parlak ve renkli
+      pushMatrix();
+      translate(x, y);
+      rotate(frameCount * 0.05);
+      fill(red(renk), green(renk), blue(renk), yasam);
+      rect(-3, -3, 6, 6);
+      // Parlama efekti
+      fill(255, yasam * 0.5);
+      ellipse(0, 0, 8, 8);
+      popMatrix();
+    } else {
+      ellipse(x, y, 4, 4);
+    }
+  }
+}
