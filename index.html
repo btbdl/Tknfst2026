@@ -183,6 +183,17 @@
         @keyframes spin {
             to { transform: rotate(360deg); }
         }
+
+        .role-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-top: 0.5rem;
+        }
     </style>
 </head>
 <body class="text-white font-inter min-h-screen">
@@ -271,7 +282,7 @@
                 <h2 class="font-orbitron text-3xl font-bold">Proje Ekibi</h2>
             </div>
             
-            <div class="grid md:grid-cols-4 gap-6">
+            <div class="grid md:grid-cols-3 gap-6">
                 <!-- Danışman -->
                 <div class="team-member glass-panel rounded-2xl p-6 text-center group hover:border-yellow-400 transition-all duration-300 border-2 border-yellow-400/30">
                     <div class="w-24 h-24 mx-auto mb-4 rounded-full bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center text-3xl font-bold shadow-lg group-hover:scale-110 transition-transform">
@@ -285,7 +296,7 @@
                     </div>
                 </div>
 
-                <!-- Batu -->
+                <!-- Batu - Güncellendi -->
                 <div class="team-member glass-panel rounded-2xl p-6 text-center group hover:border-tech-blue transition-all duration-300">
                     <div class="w-24 h-24 mx-auto mb-4 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-3xl font-bold shadow-lg group-hover:scale-110 transition-transform">
                         B
@@ -293,6 +304,16 @@
                     <h3 class="font-bold text-lg mb-1">Abdullah Batu Baddal</h3>
                     <p class="text-tech-blue text-sm font-semibold mb-2">Proje Üyesi</p>
                     <p class="text-gray-400 text-sm mb-3">ArcGIS haritalama, Arduino iklim simülasyonu ve Processing görselleştirme</p>
+                    
+                    <!-- Yeni eklenen görevler -->
+                    <div class="border-t border-white/10 pt-3 mt-3">
+                        <div class="role-badge bg-green-500/20 text-green-300">
+                            <i class="fas fa-volume-up text-xs"></i>
+                            <span>Oyun İçi SFX Yapımcısı</span>
+                        </div>
+                        <p class="text-xs text-gray-400 mt-2 px-2">Arduino simülasyonu ve oyun için ses efektleri tasarımı</p>
+                    </div>
+                    
                     <div class="mt-4 flex justify-center gap-2 flex-wrap">
                         <span class="px-3 py-1 rounded-full bg-blue-500/20 text-blue-300 text-xs">ArcGIS</span>
                         <span class="px-3 py-1 rounded-full bg-green-500/20 text-green-300 text-xs">Arduino</span>
@@ -300,7 +321,7 @@
                     </div>
                 </div>
 
-                <!-- Eymen -->
+                <!-- Eymen - Güncellendi -->
                 <div class="team-member glass-panel rounded-2xl p-6 text-center group hover:border-orange-400 transition-all duration-300">
                     <div class="w-24 h-24 mx-auto mb-4 rounded-full bg-gradient-to-br from-orange-400 to-red-500 flex items-center justify-center text-3xl font-bold shadow-lg group-hover:scale-110 transition-transform">
                         E
@@ -308,40 +329,19 @@
                     <h3 class="font-bold text-lg mb-1">Ahmet Eymen Alkaptan</h3>
                     <p class="text-orange-400 text-sm font-semibold mb-2">Proje Üyesi</p>
                     <p class="text-gray-400 text-sm mb-3">Scratch oyun geliştirme, karakter tasarımı ve oyun mekanikleri</p>
+                    
+                    <!-- Yeni eklenen görev -->
+                    <div class="border-t border-white/10 pt-3 mt-3">
+                        <div class="role-badge bg-pink-500/20 text-pink-300">
+                            <i class="fas fa-music text-xs"></i>
+                            <span>Oyun İçi Müzik Yapımcısı</span>
+                        </div>
+                        <p class="text-xs text-gray-400 mt-2 px-2">Oyun içi arka plan müzikleri ve ses efektleri (SFX) tasarımı</p>
+                    </div>
+                    
                     <div class="mt-4 flex justify-center gap-2 flex-wrap">
                         <span class="px-3 py-1 rounded-full bg-orange-500/20 text-orange-300 text-xs">Scratch</span>
                         <span class="px-3 py-1 rounded-full bg-red-500/20 text-red-300 text-xs">Oyun Tasarımı</span>
-                    </div>
-                </div>
-
-                <!-- Yeni Üye: Oyun İçi Müzik ve SFX -->
-                <div class="team-member glass-panel rounded-2xl p-6 text-center group hover:border-pink-400 transition-all duration-300">
-                    <div class="w-24 h-24 mx-auto mb-4 rounded-full bg-gradient-to-br from-pink-400 to-purple-500 flex items-center justify-center text-3xl font-bold shadow-lg group-hover:scale-110 transition-transform">
-                        <i class="fas fa-music"></i>
-                    </div>
-                    <h3 class="font-bold text-lg mb-1">Ahmet Eymen Alkaptan</h3>
-                    <p class="text-pink-400 text-sm font-semibold mb-2">Oyun İçi Müzik Yapımcısı</p>
-                    <p class="text-gray-400 text-sm mb-3">Oyun içi arka plan müzikleri ve ses efektleri (SFX) tasarımı</p>
-                    <div class="mt-4 flex justify-center gap-2 flex-wrap">
-                        <span class="px-3 py-1 rounded-full bg-pink-500/20 text-pink-300 text-xs">Müzik</span>
-                        <span class="px-3 py-1 rounded-full bg-purple-500/20 text-purple-300 text-xs">SFX</span>
-                        <span class="px-3 py-1 rounded-full bg-indigo-500/20 text-indigo-300 text-xs">Ses Tasarımı</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Yeni Satır: Batu için ek görev -->
-            <div class="mt-6 grid md:grid-cols-1 gap-6">
-                <div class="team-member glass-panel rounded-2xl p-6 text-center group hover:border-green-400 transition-all duration-300">
-                    <div class="w-24 h-24 mx-auto mb-4 rounded-full bg-gradient-to-br from-green-400 to-teal-500 flex items-center justify-center text-3xl font-bold shadow-lg group-hover:scale-110 transition-transform">
-                        <i class="fas fa-volume-up"></i>
-                    </div>
-                    <h3 class="font-bold text-lg mb-1">Abdullah Batu Baddal</h3>
-                    <p class="text-green-400 text-sm font-semibold mb-2">Oyun İçi Ses Efektleri (SFX) Yapımcısı</p>
-                    <p class="text-gray-400 text-sm mb-3">Arduino simülasyonu için ses efektleri ve ek oyun içi SFX tasarımı</p>
-                    <div class="mt-4 flex justify-center gap-2 flex-wrap">
-                        <span class="px-3 py-1 rounded-full bg-green-500/20 text-green-300 text-xs">SFX</span>
-                        <span class="px-3 py-1 rounded-full bg-teal-500/20 text-teal-300 text-xs">Ses Efektleri</span>
                     </div>
                 </div>
             </div>
