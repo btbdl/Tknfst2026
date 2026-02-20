@@ -271,7 +271,7 @@
                 <h2 class="font-orbitron text-3xl font-bold">Proje Ekibi</h2>
             </div>
             
-            <div class="grid md:grid-cols-3 gap-6">
+            <div class="grid md:grid-cols-4 gap-6">
                 <!-- Danışman -->
                 <div class="team-member glass-panel rounded-2xl p-6 text-center group hover:border-yellow-400 transition-all duration-300 border-2 border-yellow-400/30">
                     <div class="w-24 h-24 mx-auto mb-4 rounded-full bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center text-3xl font-bold shadow-lg group-hover:scale-110 transition-transform">
@@ -311,6 +311,37 @@
                     <div class="mt-4 flex justify-center gap-2 flex-wrap">
                         <span class="px-3 py-1 rounded-full bg-orange-500/20 text-orange-300 text-xs">Scratch</span>
                         <span class="px-3 py-1 rounded-full bg-red-500/20 text-red-300 text-xs">Oyun Tasarımı</span>
+                    </div>
+                </div>
+
+                <!-- Yeni Üye: Oyun İçi Müzik ve SFX -->
+                <div class="team-member glass-panel rounded-2xl p-6 text-center group hover:border-pink-400 transition-all duration-300">
+                    <div class="w-24 h-24 mx-auto mb-4 rounded-full bg-gradient-to-br from-pink-400 to-purple-500 flex items-center justify-center text-3xl font-bold shadow-lg group-hover:scale-110 transition-transform">
+                        <i class="fas fa-music"></i>
+                    </div>
+                    <h3 class="font-bold text-lg mb-1">Ahmet Eymen Alkaptan</h3>
+                    <p class="text-pink-400 text-sm font-semibold mb-2">Oyun İçi Müzik Yapımcısı</p>
+                    <p class="text-gray-400 text-sm mb-3">Oyun içi arka plan müzikleri ve ses efektleri (SFX) tasarımı</p>
+                    <div class="mt-4 flex justify-center gap-2 flex-wrap">
+                        <span class="px-3 py-1 rounded-full bg-pink-500/20 text-pink-300 text-xs">Müzik</span>
+                        <span class="px-3 py-1 rounded-full bg-purple-500/20 text-purple-300 text-xs">SFX</span>
+                        <span class="px-3 py-1 rounded-full bg-indigo-500/20 text-indigo-300 text-xs">Ses Tasarımı</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Yeni Satır: Batu için ek görev -->
+            <div class="mt-6 grid md:grid-cols-1 gap-6">
+                <div class="team-member glass-panel rounded-2xl p-6 text-center group hover:border-green-400 transition-all duration-300">
+                    <div class="w-24 h-24 mx-auto mb-4 rounded-full bg-gradient-to-br from-green-400 to-teal-500 flex items-center justify-center text-3xl font-bold shadow-lg group-hover:scale-110 transition-transform">
+                        <i class="fas fa-volume-up"></i>
+                    </div>
+                    <h3 class="font-bold text-lg mb-1">Abdullah Batu Baddal</h3>
+                    <p class="text-green-400 text-sm font-semibold mb-2">Oyun İçi Ses Efektleri (SFX) Yapımcısı</p>
+                    <p class="text-gray-400 text-sm mb-3">Arduino simülasyonu için ses efektleri ve ek oyun içi SFX tasarımı</p>
+                    <div class="mt-4 flex justify-center gap-2 flex-wrap">
+                        <span class="px-3 py-1 rounded-full bg-green-500/20 text-green-300 text-xs">SFX</span>
+                        <span class="px-3 py-1 rounded-full bg-teal-500/20 text-teal-300 text-xs">Ses Efektleri</span>
                     </div>
                 </div>
             </div>
@@ -354,13 +385,7 @@
                             Oyun Hakkında
                         </h3>
                         <p class="text-gray-300 text-sm leading-relaxed mb-4">
-                            Bu oyun Ahmet Eymen Alkaptan tarafından MIT Scratch platformunda kodlanmıştır. 
-                            Oyunun amacı Ortaokul öğrencilerine İklim değişikliği hakkına farkındalık kazandırmaktır.
-                            Daha fazla bilgi için Scratch sayfasını ziyaret ediniz.
-                            <picture>
-                                <source media="(min-width: )" srcset="">
-                                <img src="" alt="">
-                            </picture>
+                            Bu oyun Ahmet Eymen Alkaptan tarafından MIT Scratch platformunda kodlanmıştır. Oyunun amacı Ortaokul öğrencilerine İklim değişikliği hakkında farkındalık kazandırmaktır. Daha fazla bilgi için Scratch sayfasını ziyaret ediniz.
                         </p>
                         <div class="p-3 rounded-lg bg-orange-500/10 border border-orange-500/30">
                             <p class="text-xs text-orange-300">
@@ -442,7 +467,7 @@
                 </div>
             </div>
 
-            <div class="grid md:grid-cols-3 gap-6">
+            <div class="grid md:grid-cols-2 gap-6">
                 <div class="glass-panel rounded-2xl p-6 border-l-4 border-blue-400">
                     <h3 class="font-bold text-lg mb-3 flex items-center gap-2">
                         <i class="fas fa-water text-blue-400"></i>
@@ -460,27 +485,6 @@
                         <li class="flex items-center gap-2">
                             <span class="w-2 h-2 rounded-full bg-blue-400"></span>
                             Kovada Gölü
-                        </li>
-                    </ul>
-                </div>
-
-                <div class="glass-panel rounded-2xl p-6 border-l-4 border-green-400">
-                    <h3 class="font-bold text-lg mb-3 flex items-center gap-2">
-                        <i class="fas fa-layer-group text-green-400"></i>
-                        Harita Katmanları
-                    </h3>
-                    <ul class="space-y-2 text-sm text-gray-300">
-                        <li class="flex items-center gap-2">
-                            <i class="fas fa-check text-green-400 text-xs"></i>
-                            Uydu görüntüleri
-                        </li>
-                        <li class="flex items-center gap-2">
-                            <i class="fas fa-check text-green-400 text-xs"></i>
-                            Topografik haritalar
-                        </li>
-                        <li class="flex items-center gap-2">
-                            <i class="fas fa-check text-green-400 text-xs"></i>
-                            Yerleşim yerleri
                         </li>
                     </ul>
                 </div>
@@ -810,29 +814,83 @@
 }</code></pre>
                 </div>
 
-                <!-- Processing Code - Download Link -->
+                <!-- Processing Code - Yeni Tasarım -->
                 <div id="code-processing" class="code-block p-4 overflow-x-auto hidden">
                     <div class="text-center py-8">
-                        <i class="fas fa-file-code text-6xl text-purple-400 mb-4"></i>
+                        <i class="fas fa-code text-6xl text-purple-400 mb-4"></i>
                         <h3 class="font-bold text-xl mb-2">Processing Kodu</h3>
                         <p class="text-gray-400 text-sm mb-6 max-w-md mx-auto">
-                            Processing kodu çok uzun olduğu için ayrı dosya olarak indirilebilir. 
-                            "Processing kod.txt" dosyasını indirip Processing IDE'sinde açabilirsiniz.
+                            Processing kodu metin dosyası olarak aşağıda görüntülenmektedir. 
+                            Bu kodu kullanmak için Processing IDE'sinde yeni bir sketch oluşturup 
+                            kodu kopyalayıp yapıştırmanız gerekmektedir.
                         </p>
                         
-                        <div class="flex justify-center gap-4">
-                            <a href="Processing kod.txt" download class="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-purple-600 hover:bg-purple-700 text-white font-semibold transition-all transform hover:scale-105">
-                                <i class="fas fa-download"></i>
-                                Processing Kodunu İndir
-                            </a>
+                        <div class="mt-6 p-4 bg-purple-500/10 border border-purple-500/30 rounded-lg max-w-2xl mx-auto text-left overflow-x-auto">
+                            <h4 class="font-semibold text-purple-400 mb-2 text-sm">Processing Kodu:</h4>
+                            <pre class="text-xs text-gray-300 leading-relaxed"><code>import processing.serial.*;
+
+Serial myPort;
+String data = "";
+int mod = 0;
+int potDeger = 0;
+int suDeger = 0;
+
+void setup() {
+  size(800, 600);
+  println(Serial.list());
+  String portName = Serial.list()[0];
+  myPort = new Serial(this, portName, 9600);
+}
+
+void draw() {
+  background(20);
+  
+  if (myPort.available() > 0) {
+    data = myPort.readStringUntil('\n');
+  }
+  
+  if (data != null) {
+    String[] values = split(data, '|');
+    if (values.length == 3) {
+      mod = int(split(values[0], ':')[1]);
+      potDeger = int(split(values[1], ':')[1]);
+      suDeger = int(split(values[2], ':')[1]);
+    }
+  }
+  
+  // Simülasyon görselleştirmesi
+  fill(255);
+  textSize(24);
+  text("İklim Simülasyonu", 300, 40);
+  
+  textSize(16);
+  text("Mod: " + (mod == 0 ? "Bekleme" : mod == 1 ? "İhmal Edilen Dünya" : "Kurtarılan Dünya"), 50, 100);
+  text("Potansiyometre: " + potDeger, 50, 130);
+  text("Su Seviyesi: " + suDeger, 50, 160);
+  
+  // Görsel elemanlar
+  if (mod == 1) {
+    fill(255, 0, 0, map(potDeger, 0, 1023, 50, 200));
+    rect(200, 200, 400, 200);
+    fill(255);
+    text("Kirlilik Artıyor!", 350, 310);
+  } else if (mod == 2) {
+    fill(0, 255, 0, map(suDeger, 0, 1023, 50, 200));
+    ellipse(400, 300, map(suDeger, 0, 1023, 100, 300), map(suDeger, 0, 1023, 100, 300));
+    fill(255);
+    text("Doğa Canlanıyor!", 340, 310);
+  }
+}</code></pre>
                         </div>
                         
-                        <div class="mt-6 p-4 bg-purple-500/10 border border-purple-500/30 rounded-lg max-w-lg mx-auto text-left">
-                            <h4 class="font-semibold text-purple-400 mb-2 text-sm">Kullanım:</h4>
+                        <div class="mt-6 p-4 bg-yellow-500/10 border border-yellow-500/30 rounded-lg max-w-lg mx-auto text-left">
+                            <h4 class="font-semibold text-yellow-400 mb-2 text-sm"><i class="fas fa-exclamation-triangle mr-2"></i>Kullanım Talimatları:</h4>
                             <ol class="text-xs text-gray-300 space-y-1 list-decimal list-inside">
-                                <li>Yukarıdaki butona tıklayarak "Processing kod.txt" dosyasını indirin</li>
-                                <li>Processing IDE'sini açın</li>
-                                <li>Dosya → Aç (Ctrl+O) ile indirdiğiniz dosyayı seçin</li>
+                                <li>Processing IDE'sini açın (processing.org'dan indirilebilir)</li>
+                                <li>Yeni bir sketch oluşturun (Dosya → Yeni)</li>
+                                <li>Yukarıdaki kodu kopyalayın</li>
+                                <li>Processing IDE'sindeki kod alanına yapıştırın</li>
+                                <li>Arduino'yu USB ile bağlayın</li>
                                 <li>Çalıştır butonuna basın (veya Ctrl+R)</li>
                             </ol>
                         </div>
