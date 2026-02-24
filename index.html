@@ -1,1278 +1,1223 @@
-// ==========================================
-// PROCESSING KODU - İklim Simülasyonu (Su Sensörü Düzeltmeli)
-// ==========================================
-
-import processing.serial.*;
-
-Serial arduino;
-int aktifMod = 0;
-int potDeger = 0;
-int suDeger = 0;
-
-float yilOrani = 0;
-int mevcutYil = 2026;
-float suOrani = 0;
-
-ArrayList<Bina> binalar = new ArrayList<Bina>();
-ArrayList<Agac> agaclar = new ArrayList<Agac>();
-ArrayList<Partikul> partikuller = new ArrayList<Partikul>();
-ArrayList<YeraltiSiginagi> siginaklar = new ArrayList<YeraltiSiginagi>();
-ArrayList<Bulut> bulutlar = new ArrayList<Bulut>();
-ArrayList<Kus> kuslar = new ArrayList<Kus>();
-ArrayList<Yildiz> yildizlar = new ArrayList<Yildiz>();
-
-color[] gokyuzuKotu = {
-  color(135, 206, 235), color(200, 150, 100), color(180, 100, 60),
-  color(120, 70, 50), color(60, 40, 40)
-};
-
-color[] gokyuzuIyi = {
-  color(255, 200, 150), color(200, 220, 240), color(100, 200, 255),
-  color(80, 180, 255), color(120, 220, 255)
-};
-
-void setup() {
-  fullScreen();
-  String portAdi = "COM3";
-  printArray(Serial.list());
-  
-  try {
-    arduino = new Serial(this, portAdi, 9600);
-    println("Arduino baglandi: " + portAdi);
-  } catch (Exception e) {
-    println("HATA: " + portAdi + " bulunamadi!");
-  }
-  
-  sehirOlustur();
-  
-  // Ağaçları sadece dağ tepeleri için oluştur (yukarıda)
-  for (int i = 0; i < 25; i++) {
-    agaclar.add(new Agac(random(width), random(height/2 - 200, height/2 - 50)));
-  }
-  
-  for (int i = 0; i < 5; i++) {
-    siginaklar.add(new YeraltiSiginagi(random(150, width-150), height - 50));
-  }
-  
-  for (int i = 0; i < 8; i++) {
-    bulutlar.add(new Bulut(random(width), random(50, 200)));
-  }
-  
-  for (int i = 0; i < 20; i++) {
-    kuslar.add(new Kus());
-  }
-  
-  for (int i = 0; i < 100; i++) {
-    yildizlar.add(new Yildiz());
-  }
-}
-
-void draw() {
-  arduinoOku();
-  if (aktifMod == 0) beklemeEkrani();
-  else if (aktifMod == 1) kotuSenaryo();
-  else if (aktifMod == 2) iyiSenaryo();
-}
-
-void arduinoOku() {
-  while (arduino != null && arduino.available() > 0) {
-    String veri = arduino.readStringUntil('\n');
-    if (veri != null) {
-      veri = trim(veri);
-      String[] parcalar = split(veri, "|");
-      for (String p : parcalar) {
-        if (p.startsWith("MOD:")) aktifMod = Integer.parseInt(p.substring(4));
-        else if (p.startsWith("POT:")) potDeger = Integer.parseInt(p.substring(4));
-        else if (p.startsWith("SU:")) suDeger = Integer.parseInt(p.substring(3));
-      }
-    }
-  }
-}
-
-// ==========================================
-// BEKLEME EKRANI
-// ==========================================
-
-void beklemeEkrani() {
-  background(20, 25, 35);
-  
-  for (Yildiz y : yildizlar) {
-    y.parlaklik = random(50, 150);
-    y.ciz();
-  }
-  
-  textAlign(CENTER);
-  fill(255);
-  textSize(56);
-  text("2100: GELECEGIN IKI YUZU", width/2, height/4);
-  
-  fill(180, 220, 255);
-  textSize(24);
-  text("Iklim degisikligi interaktif simulasyonu", width/2, height/4 + 60);
-  
-  cizimKutu(width/4, height/2, 380, 280, color(200, 60, 60), 
-            "SENARYO A", "Ihmal Edilen Dunya", 
-            "Potansiyometre ile yili kontrol et", 
-            "2026 → 2100: Cokus", "BUTON A'ya bas", 0);
-  
-  cizimKutu(width*3/4, height/2, 380, 280, color(60, 200, 60), 
-            "SENARYO B", "Kurtarilan Dunya", 
-            "Su sensoru ile gezegeni besle", 
-            "Kuraklik → Utopia", "BUTON B'ye bas", PI);
-  
-  fill(150, 180, 200);
-  textSize(18);
-  text("Bir senaryo secmek icin butona basin", width/2, height - 80);
-  
-  if (arduino == null) {
-    fill(255, 100, 100);
-    textSize(16);
-    text("UYARI: Arduino baglanti yok!", width/2, height - 40);
-  }
-}
-
-void cizimKutu(float x, float y, float w, float h, color temelRenk, 
-               String baslik, String altBaslik, String aciklama1, 
-               String aciklama2, String butonYazi, float faz) {
-  
-  float parlama = 150 + sin(frameCount * 0.05 + faz) * 30;
-  
-  fill(0, 40);
-  noStroke();
-  rect(x - w/2 + 8, y - h/2 + 8, w, h, 15);
-  
-  fill(red(temelRenk), green(temelRenk), blue(temelRenk), parlama);
-  stroke(255, 120);
-  strokeWeight(2);
-  rect(x - w/2, y - h/2, w, h, 15);
-  
-  fill(0, 30);
-  rect(x - w/2 + 10, y - h/2 + 10, w - 20, h/2 - 10, 10);
-  
-  textAlign(CENTER);
-  
-  fill(255);
-  textSize(32);
-  text(baslik, x, y - h/3 + 10);
-  
-  textSize(20);
-  fill(255, 230, 230);
-  text(altBaslik, x, y - h/6 + 5);
-  
-  textSize(14);
-  fill(220);
-  text(aciklama1, x, y + 15);
-  text(aciklama2, x, y + 40);
-  
-  fill(temelRenk);
-  textSize(16);
-  text(butonYazi, x, y + h/3 - 10);
-}
-
-// ==========================================
-// KOTU SENARYO
-// ==========================================
-
-void kotuSenaryo() {
-  yilOrani = potDeger / 1023.0;
-  mevcutYil = 2026 + (int)(yilOrani * 74);
-  
-  background(araRenk(gokyuzuKotu, yilOrani));
-  
-  if (yilOrani > 0.6) {
-    for (Yildiz y : yildizlar) {
-      y.guncelle(yilOrani);
-      y.ciz();
-    }
-  }
-  
-  if (yilOrani > 0.7) ayCiz(yilOrani);
-  else gunesKotu(yilOrani);
-  
-  for (Bulut b : bulutlar) {
-    b.kotuModGuncelle(yilOrani);
-    b.ciz();
-  }
-  
-  daglarKotu(yilOrani, 0.3);
-  daglarKotu(yilOrani, 0.6);
-  horizonKotu(yilOrani);
-  zeminKotu(yilOrani);
-  
-  for (Bina b : binalar) {
-    b.kotuModGuncelle(yilOrani);
-    b.kotuModCiz();
-  }
-  
-  for (YeraltiSiginagi s : siginaklar) {
-    s.guncelle(yilOrani);
-    s.ciz();
-  }
-  
-  havaEfektleriKotu(yilOrani);
-  uiKotu();
-}
-
-void gunesKotu(float oran) {
-  float x = width * 0.8, y = height * 0.15;
-  color gunesRengi = lerpColor(color(255, 255, 200), color(255, 80, 30), oran);
-  float gunesBoyut = 60 + oran * 40;
-  
-  noStroke();
-  for (int i = 6; i > 0; i--) {
-    fill(red(gunesRengi), green(gunesRengi), blue(gunesRengi), 25);
-    ellipse(x, y, gunesBoyut + i * 20, gunesBoyut + i * 20);
-  }
-  
-  fill(gunesRengi);
-  ellipse(x, y, gunesBoyut, gunesBoyut);
-  
-  if (oran > 0.9) {
-    fill(0, 100);
-    ellipse(x, y, gunesBoyut + 10, gunesBoyut + 10);
-  }
-}
-
-void ayCiz(float oran) {
-  float x = width * 0.8, y = height * 0.15;
-  float ayParlaklik = (oran - 0.7) / 0.3;
-  
-  noStroke();
-  fill(200, 200, 220, 255 * ayParlaklik);
-  ellipse(x, y, 80, 80);
-  
-  fill(150, 150, 170, 150 * ayParlaklik);
-  ellipse(x - 15, y + 10, 15, 12);
-  ellipse(x + 20, y - 5, 20, 18);
-  
-  for (int i = 4; i > 0; i--) {
-    fill(200, 200, 255, 15 * ayParlaklik);
-    ellipse(x, y, 80 + i * 25, 80 + i * 25);
-  }
-}
-
-void daglarKotu(float oran, float katman) {
-  noStroke();
-  color dagRengi = lerpColor(
-    color(80 + katman * 40, 100 + katman * 20, 80 + katman * 20),
-    color(120 - katman * 20, 90 - katman * 10, 60), oran
-  );
-  fill(dagRengi);
-  
-  float yOffset = height/2 - 50 * katman;
-  
-  beginShape();
-  vertex(0, height/2);
-  for (int x = 0; x <= width; x += 20) {
-    float y = yOffset - noise(x * 0.005 + katman * 100) * 150 * (1 + oran * 0.5);
-    y = lerp(y, height/2 - 20, oran * 0.6);
-    vertex(x, y);
-  }
-  vertex(width, height/2);
-  endShape(CLOSE);
-}
-
-void horizonKotu(float oran) {
-  noStroke();
-  color dagRengi = lerpColor(color(100, 120, 100), color(140, 100, 70), oran);
-  fill(dagRengi);
-  
-  beginShape();
-  vertex(0, height/2);
-  for (int x = 0; x <= width; x += 20) {
-    float y = height/2 - 80 - noise(x * 0.01 + 200) * 100;
-    y = lerp(y, height/2 - 10, oran * 0.8);
-    vertex(x, y);
-  }
-  vertex(width, height/2);
-  endShape(CLOSE);
-}
-
-void zeminKotu(float oran) {
-  for (int y = height/2; y < height; y += 5) {
-    float inter = map(y, height/2, height, 0, 1);
-    color zemin = lerpColor(
-      lerpColor(color(100, 120, 80), color(180, 160, 120), oran),
-      color(140, 120, 90), inter
-    );
-    stroke(zemin);
-    line(0, y, width, y);
-  }
-  
-  if (oran > 0.2) {
-    stroke(100, 80, 60, 255 * oran);
-    strokeWeight(1 + oran * 2);
-    for (int i = 0; i < (int)(oran * 25); i++) {
-      float x = width * (i / 25.0) + noise(i) * 50;
-      float y = height/2 + 30 + noise(i * 2) * 250;
-      line(x, y, x + random(-50, 50) * oran, y + random(40, 100) * oran);
-    }
-  }
-  
-  if (oran > 0.85) {
-    for (int i = 0; i < 5; i++) {
-      float x = width * (0.2 + i * 0.15);
-      float y = height/2 + 100 + sin(frameCount * 0.1 + i) * 20;
-      fill(255, 100 + random(100), 50, 150 + random(50));
-      noStroke();
-      ellipse(x, y, 30 + random(20), 15 + random(10));
-    }
-  }
-  
-  if (oran > 0.9) {
-    fill(255, 0, 0, 30 + sin(frameCount * 0.1) * 20);
-    noStroke();
-    rect(0, height/2, width, height/2);
-  }
-}
-
-void havaEfektleriKotu(float oran) {
-  int katmanSayisi = (int)(oran * 3) + 1;
-  for (int k = 0; k < katmanSayisi; k++) {
-    int partikulSayisi = (int)(oran * 5);
-    for (int i = 0; i < partikulSayisi; i++) {
-      partikuller.add(new Partikul("toz", k));
-    }
-  }
-  
-  if (oran > 0.85 && frameCount % 40 == 0) partikuller.add(new Partikul("radyasyon", 0));
-  if (oran > 0.4 && frameCount % 10 == 0) partikuller.add(new Partikul("duman", 0));
-  
-  for (int i = partikuller.size() - 1; i >= 0; i--) {
-    Partikul p = partikuller.get(i);
-    p.kotuGuncelle(oran);
-    p.ciz();
-    if (p.yasam <= 0) partikuller.remove(i);
-  }
-}
-
-void uiKotu() {
-  fill(20, 20, 30, 220);
-  stroke(150, 50, 50);
-  strokeWeight(2);
-  rect(20, 20, 400, 200, 15);
-  
-  fill(255, 150, 150);
-  textAlign(LEFT);
-  textSize(20);
-  text("SENARYO A: IHMAL EDILEN DUNYA", 40, 55);
-  
-  fill(255);
-  textSize(40);
-  text("YIL: " + mevcutYil, 40, 100);
-  
-  textSize(14);
-  fill(255, 100, 100);
-  text("Sera gazi: %" + (int)(yilOrani * 150), 40, 130);
-  fill(100, 255, 100);
-  text("Yasanabilirlik: %" + (int)((1-yilOrani) * 100), 40, 150);
-  
-  textSize(15);
-  String durum;
-  if (yilOrani < 0.2) durum = "Durum: Normal (Ama ihmale baslandi)";
-  else if (yilOrani < 0.4) durum = "Durum: Erken uyarilar gormezden gelindi";
-  else if (yilOrani < 0.6) durum = "Durum: Su kaynaklari tukeniyor";
-  else if (yilOrani < 0.8) durum = "Durum: Kitlesel gocler basladi";
-  else durum = "Durum: Yuzey yasanmaz - Yeralti signaklari";
-  
-  fill(lerpColor(color(200), color(255, 100, 100), yilOrani));
-  text(durum, 40, 175);
-  
-  stroke(255);
-  noFill();
-  rect(40, 185, 250, 12);
-  fill(255, 100, 100);
-  noStroke();
-  rect(40, 185, yilOrani * 250, 12);
-  
-  if (yilOrani > 0.95) {
-    fill(255, 0, 0, 150 + sin(frameCount * 0.3) * 100);
-    textAlign(CENTER);
-    textSize(48);
-    text("INSANLIK YERALTINDA", width/2, height/3);
-  }
-  
-  fill(150);
-  textSize(13);
-  textAlign(RIGHT);
-  text("Diger senaryo icin butona bas", width - 40, height - 40);
-}
-
-// ==========================================
-// IYI SENARYO (Düzeltilmiş - Su Sensörü)
-// ==========================================
-
-void iyiSenaryo() {
-  // DÜZELTME: Su sensörü 0-650 aralığında çalışıyor
-  // Doğrusal ölçekleme: 0 = kuru, 650 = tamamen suda
-  // Bu sayede kontrollü, tahmin edilebilir bir artış olur
-  suOrani = constrain(map(suDeger, 0, 650, 0, 1), 0, 1);
-  
-  // İsteğe bağlı: Daha yumuşak geçiş için (açıklamalı)
-  // Eğer sensör değerleri çok dalgalıysa bu satırı aktif edin:
-  // suOrani = lerp(suOrani, constrain(map(suDeger, 0, 650, 0, 1), 0, 1), 0.1);
-  
-  background(araRenk(gokyuzuIyi, suOrani));
-  
-  gunesIyi(suOrani);
-  
-  for (Bulut b : bulutlar) {
-    b.iyiModGuncelle(suOrani);
-    b.ciz();
-  }
-  
-  for (Kus k : kuslar) {
-    k.guncelle(suOrani);
-    k.ciz();
-  }
-  
-  // GÖKKUŞAĞI - Havada, çok şeffaf
-  if (suOrani > 0.7) gokkusagiCiz();
-  
-  // DAĞLAR (arka plan)
-  daglarIyi(suOrani, 0.3);
-  daglarIyi(suOrani, 0.6);
-  
-  // AĞAÇLAR - Sadece dağ tepelerinde (horizondan ÖNCE)
-  for (Agac a : agaclar) {
-    a.iyiModGuncelle(suOrani);
-    a.iyiModCiz();
-  }
-  
-  horizonIyi(suOrani);
-  zeminIyi(suOrani);
-  
-  for (Bina b : binalar) {
-    b.iyiModGuncelle(suOrani);
-    b.iyiModCiz();
-  }
-  
-  havaEfektleriIyi(suOrani);
-  uiIyi();
-}
-
-void gunesIyi(float oran) {
-  float x = width * 0.75, y = height * 0.12;
-  color gunesRengi = lerpColor(color(255, 200, 100), color(255, 255, 240), oran);
-  float gunesBoyut = 70 + oran * 30;
-  
-  if (oran > 0.3) {
-    pushMatrix();
-    translate(x, y);
-    rotate(frameCount * 0.01);
-    for (int i = 0; i < 12; i++) {
-      float aci = radians(i * 30);
-      float uzunluk = 80 + oran * 60;
-      stroke(255, 255, 200, 80 * oran);
-      strokeWeight(3);
-      line(cos(aci) * gunesBoyut/2, sin(aci) * gunesBoyut/2, 
-           cos(aci) * uzunluk, sin(aci) * uzunluk);
-    }
-    popMatrix();
-  }
-  
-  noStroke();
-  for (int i = 8; i > 0; i--) {
-    fill(red(gunesRengi), green(gunesRengi), blue(gunesRengi), 30);
-    ellipse(x, y, gunesBoyut + i * 18, gunesBoyut + i * 18);
-  }
-  
-  fill(gunesRengi);
-  ellipse(x, y, gunesBoyut, gunesBoyut);
-  
-  fill(255, 200);
-  ellipse(x - gunesBoyut * 0.2, y - gunesBoyut * 0.1, gunesBoyut * 0.3, gunesBoyut * 0.25);
-}
-
-void gokkusagiCiz() {
-  // ÇOK ŞEFFAF GÖKKUŞAĞI - Silüet gibi
-  float merkezX = width * 0.6;
-  float merkezY = height * 0.35; // Daha yukarıda
-  
-  noFill();
-  
-  color[] renkler = {
-    color(255, 0, 0), color(255, 127, 0), color(255, 255, 0),
-    color(0, 255, 0), color(0, 0, 255), color(75, 0, 130), color(143, 0, 255)
-  };
-  
-  // Çok şeffaf, silüet gibi
-  for (int i = 0; i < 7; i++) {
-    stroke(renkler[i], 40 * suOrani); // Çok düşük opaklık (40)
-    strokeWeight(20); // Kalın ama şeffaf
-    arc(merkezX, merkezY, 400 - i * 25, 400 - i * 25, PI + 0.5, TWO_PI - 0.5);
-  }
-}
-
-void daglarIyi(float oran, float katman) {
-  noStroke();
-  color dagRengi = lerpColor(
-    color(120 - katman * 20, 100 - katman * 10, 80),
-    color(80 + katman * 30, 140 + katman * 20, 80 + katman * 10), oran
-  );
-  fill(dagRengi);
-  
-  float yOffset = height/2 - 80 * katman;
-  
-  beginShape();
-  vertex(0, height/2);
-  for (int x = 0; x <= width; x += 15) {
-    float y = yOffset - noise(x * 0.004 + katman * 100) * 120;
-    y -= oran * 30 * katman;
-    vertex(x, y);
-  }
-  vertex(width, height/2);
-  endShape(CLOSE);
-  
-  // AĞAÇLAR - Sadece dağ tepelerine
-  if (oran > 0.4) {
-    fill(34, 100 + oran * 50, 34);
-    for (int x = 0; x < width; x += 40) {
-      // Dağ tepesi yüksekliği
-      float dagY = yOffset - noise(x * 0.004 + katman * 100) * 120 - oran * 30 * katman;
-      
-      // Sadece görünür ve yukarıda olan tepelere
-      if (dagY < height/2 - 40 && dagY > height/2 - 250) {
-        // Ağaç gövde
-        fill(101, 67, 33);
-        rect(x - 2, dagY, 4, 12);
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teknofest 2026 - Batu & Eymen Projesi</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'orbitron': ['Orbitron', 'sans-serif'],
+                        'inter': ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        tech: {
+                            blue: '#00d4ff',
+                            purple: '#7c3aed',
+                            dark: '#0a0a0f',
+                            darker: '#050508'
+                        }
+                    },
+                    animation: {
+                        'float': 'float 6s ease-in-out infinite',
+                        'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'gradient-x': 'gradient-x 15s ease infinite',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-20px)' },
+                        },
+                        'gradient-x': {
+                            '0%, 100%': {
+                                'background-size': '200% 200%',
+                                'background-position': 'left center'
+                            },
+                            '50%': {
+                                'background-size': '200% 200%',
+                                'background-position': 'right center'
+                            },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background: linear-gradient(135deg, #0a0a0f 0%, #1a1a2e 50%, #0f0f1e 100%);
+            overflow-x: hidden;
+        }
         
-        // Ağaç yaprak (üçgen)
-        fill(34, 120 + oran * 40, 34);
-        triangle(x, dagY - 5, x - 8, dagY + 15, x + 8, dagY + 15);
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
         
-        // RÜZGAR TÜRBİNİ (yüksek su, aralıklı)
-        if (oran > 0.75 && (x / 40) % 4 == 0 && katman > 0.4) {
-          pushMatrix();
-          translate(x, dagY);
-          
-          fill(220);
-          noStroke();
-          rect(-2, 0, 4, -30);
-          
-          pushMatrix();
-          translate(0, -30);
-          rotate(frameCount * 0.05);
-          fill(240);
-          for (int i = 0; i < 3; i++) {
-            rotate(TWO_PI / 3);
-            ellipse(0, -15, 4, 30);
-          }
-          fill(100);
-          ellipse(0, 0, 6, 6);
-          popMatrix();
-          
-          popMatrix();
+        .neon-text {
+            text-shadow: 0 0 10px rgba(0, 212, 255, 0.5), 0 0 20px rgba(0, 212, 255, 0.3);
         }
-      }
-    }
-  }
-}
-
-void horizonIyi(float oran) {
-  noStroke();
-  color zeminRengi = lerpColor(color(140, 120, 100), color(100, 160, 100), oran);
-  fill(zeminRengi);
-  
-  beginShape();
-  vertex(0, height/2);
-  for (int x = 0; x <= width; x += 20) {
-    float y = height/2 - 30 - noise(x * 0.008) * 60;
-    vertex(x, y);
-  }
-  vertex(width, height/2);
-  endShape(CLOSE);
-}
-
-void zeminIyi(float oran) {
-  // DÜZGÜN GRADYAN ZEMİN - Çizgisiz
-  noStroke();
-  for (int y = height/2; y < height; y++) {
-    float inter = map(y, height/2, height, 0, 1);
-    color zemin = lerpColor(
-      lerpColor(color(180, 160, 130), color(100, 140, 80), oran),
-      lerpColor(color(140, 120, 90), color(60, 120, 60), oran),
-      inter
-    );
-    fill(zemin);
-    rect(0, y, width, 1);
-  }
-  
-  // Çim detayları (ince)
-  if (oran > 0.3) {
-    stroke(50 + oran * 50, 100 + oran * 80, 50 + oran * 30, 150);
-    strokeWeight(1);
-    for (int x = 0; x < width; x += 6) {
-      float y = height/2 + 20 + noise(x * 0.1) * 100;
-      float yukseklik = 5 + oran * 15;
-      line(x, y, x + random(-2, 2), y - yukseklik);
-    }
-  }
-  
-  // Çiçekler
-  if (oran > 0.6) {
-    noStroke();
-    for (int x = 0; x < width; x += 40) {
-      float y = height/2 + 40 + noise(x) * 150;
-      
-      fill(0, 80, 0);
-      rect(x - 1, y, 2, 12);
-      
-      fill(200 + random(55), 100 + random(155), 100 + random(155));
-      float boyut = 5 + oran * 4;
-      ellipse(x, y, boyut, boyut);
-    }
-  }
-  
-  // SU - Sadece aşağıda
-  if (oran > 0.75) {
-    for (int i = 3; i > 0; i--) {
-      fill(100 + i * 30, 150 + i * 20, 255, 60);
-      beginShape();
-      vertex(0, height);
-      for (int x = 0; x <= width; x += 50) {
-        float dalga = sin(x * 0.01 + frameCount * 0.03) * 15 * i;
-        vertex(x, height/2 + 80 + dalga + i * 10);
-      }
-      vertex(width, height);
-      endShape(CLOSE);
-    }
-    
-    fill(255, 150);
-    for (int i = 0; i < 10; i++) {
-      float x = (frameCount * 2 + i * 100) % width;
-      float y = height/2 + 90 + sin(x * 0.02) * 10;
-      ellipse(x, y, 6, 3);
-    }
-  }
-}
-
-void havaEfektleriIyi(float oran) {
-  if (oran > 0.4) {
-    int sayi = (int)((oran - 0.4) * 15);
-    for (int i = 0; i < sayi; i++) {
-      if (random(1) < 0.05) partikuller.add(new Partikul("polen", 0));
-    }
-  }
-  
-  if (oran > 0.6 && frameCount % 20 == 0) partikuller.add(new Partikul("isik", 0));
-  
-  for (int i = partikuller.size() - 1; i >= 0; i--) {
-    Partikul p = partikuller.get(i);
-    p.iyiGuncelle(oran);
-    p.ciz();
-    if (p.yasam <= 0) partikuller.remove(i);
-  }
-}
-
-void uiIyi() {
-  fill(30, 50, 40, 200);
-  stroke(100, 255, 150);
-  strokeWeight(2);
-  rect(20, 20, 400, 200, 15);
-  
-  fill(150, 255, 150);
-  textAlign(LEFT);
-  textSize(20);
-  text("SENARYO B: KURTARILAN DUNYA", 40, 55);
-  
-  fill(255);
-  textSize(36);
-  text("SU: %" + (int)(suOrani * 100), 40, 100);
-  
-  textSize(14);
-  fill(100, 200, 255);
-  text("Oksijen seviyesi: %" + (int)(suOrani * 120), 40, 130);
-  fill(150, 255, 150);
-  text("Biyocesitlilik: %" + (int)(suOrani * 100), 40, 150);
-  
-  textSize(15);
-  String durum;
-  if (suOrani < 0.2) durum = "Durum: Kurtarma baslamali!";
-  else if (suOrani < 0.4) durum = "Durum: Ilk yesil alanlar...";
-  else if (suOrani < 0.6) durum = "Durum: Yenilenebilir enerji devrede";
-  else if (suOrani < 0.8) durum = "Durum: Ekosistem toparlaniyor";
-  else durum = "Durum: Surdurulebilir utopia!";
-  
-  fill(lerpColor(color(255, 200, 100), color(100, 255, 100), suOrani));
-  text(durum, 40, 175);
-  
-  stroke(255);
-  noFill();
-  rect(40, 185, 250, 12);
-  fill(100, 200, 255);
-  noStroke();
-  rect(40, 185, suOrani * 250, 12);
-  
-  // ==========================================
-  // GELİŞTİRİLMİŞ "GEZEGEN KURTARILDI!" YAZISI
-  // ==========================================
-  if (suOrani > 0.9) {
-    // Arka plan parlama efekti - büyük ve yumuşak
-    for (int i = 5; i > 0; i--) {
-      float parlama = 100 + sin(frameCount * 0.1 + i * 0.5) * 80;
-      fill(100 + i * 30, 255, 150 + i * 20, parlama * 0.4);
-      noStroke();
-      ellipse(width/2, height/3, 700 + i * 50, 200 + i * 30);
-    }
-    
-    // Ana metin - Gelişmiş görsel efektler
-    textAlign(CENTER);
-    textSize(72);
-    
-    // Dış gölge (derinlik için)
-    fill(0, 80);
-    text("GEZEGEN KURTARILDI!", width/2 + 4, height/3 + 4);
-    fill(0, 60);
-    text("GEZEGEN KURTARILDI!", width/2 + 2, height/3 + 2);
-    
-    // Ana renk - Animasyonlu gökkuşağı gradyanı
-    float renkDegisimi = sin(frameCount * 0.03);
-    color renk1 = color(50 + renkDegisimi * 50, 255, 100 + renkDegisimi * 50);
-    color renk2 = color(100, 200 + renkDegisimi * 55, 255);
-    color anaRenk = lerpColor(renk1, renk2, renkDegisimi * 0.5 + 0.5);
-    
-    // Parlak outline
-    fill(255, 220);
-    stroke(red(anaRenk), green(anaRenk), blue(anaRenk), 255);
-    strokeWeight(6);
-    text("GEZEGEN KURTARILDI!", width/2, height/3);
-    
-    // Ana metin
-    fill(anaRenk);
-    stroke(255, 180);
-    strokeWeight(3);
-    text("GEZEGEN KURTARILDI!", width/2, height/3);
-    
-    // İç parlama
-    fill(255, 150 + sin(frameCount * 0.2) * 100);
-    textSize(72);
-    noStroke();
-    text("GEZEGEN KURTARILDI!", width/2, height/3);
-    
-    // Altın sarısı vurgu çizgisi - Animasyonlu
-    noStroke();
-    float cizgiParlaklik = 200 + sin(frameCount * 0.15) * 55;
-    fill(255, 215, 0, cizgiParlaklik);
-    rect(width/2 - 300, height/3 + 35, 600, 8, 4);
-    
-    // Ekstra dekoratif çizgiler
-    fill(255, 255, 200, 150);
-    rect(width/2 - 200, height/3 + 50, 400, 3, 2);
-    
-    // Kutlama partikülleri - Yoğun ve çeşitli
-    if (frameCount % 3 == 0) {
-      for (int i = 0; i < 5; i++) {
-        partikuller.add(new Partikul("kutlama", 0));
-      }
-    }
-    
-    // İkonlar (yıldızlar)
-    fill(255, 255, 0, 200 + sin(frameCount * 0.3) * 55);
-    noStroke();
-    yildizCiz(width/2 - 350, height/3, 30);
-    yildizCiz(width/2 + 350, height/3, 30);
-    yildizCiz(width/2 - 280, height/3 - 40, 20);
-    yildizCiz(width/2 + 280, height/3 - 40, 20);
-  }
-  
-  fill(200);
-  textSize(13);
-  textAlign(RIGHT);
-  text("Diger senaryo icin butona bas", width - 40, height - 40);
-}
-
-// Yıldız çizim yardımcı fonksiyonu
-void yildizCiz(float x, float y, float boyut) {
-  pushMatrix();
-  translate(x, y);
-  rotate(frameCount * 0.02);
-  beginShape();
-  for (int i = 0; i < 10; i++) {
-    float aci = radians(i * 36 - 90);
-    float r = (i % 2 == 0) ? boyut : boyut * 0.4;
-    vertex(cos(aci) * r, sin(aci) * r);
-  }
-  endShape(CLOSE);
-  popMatrix();
-}
-
-color araRenk(color[] palet, float oran) {
-  int indeks = (int)(oran * (palet.length - 1));
-  indeks = constrain(indeks, 0, palet.length - 2);
-  float altOran = (oran * (palet.length - 1)) - indeks;
-  return lerpColor(palet[indeks], palet[indeks + 1], altOran);
-}
-
-void sehirOlustur() {
-  for (int i = 0; i < 15; i++) {
-    binalar.add(new Bina(random(80, width-80), height/2, random(50, 100), random(120, 300)));
-  }
-}
-
-// ==========================================
-// SINIFLAR
-// ==========================================
-
-class Bina {
-  float x, y, w, h;
-  float yikiklik = 0;
-  float yesillik = 0;
-  color temelRenk;
-  
-  Bina(float x, float y, float w, float h) {
-    this.x = x;
-    this.y = y;
-    this.w = w;
-    this.h = h;
-    this.temelRenk = color(random(120, 160), random(120, 160), random(140, 180));
-  }
-  
-  void kotuModGuncelle(float oran) {
-    yikiklik = oran;
-  }
-  
-  void kotuModCiz() {
-    pushMatrix();
-    translate(x, y);
-    
-    float egim = sin(x * 0.01) * yikiklik * 0.15;
-    rotate(egim);
-    
-    fill(0, 50);
-    noStroke();
-    rect(10, 10, w, h * (1 - yikiklik * 0.4));
-    
-    color binaRengi = lerpColor(temelRenk, color(80, 60, 50), yikiklik);
-    fill(binaRengi);
-    stroke(lerpColor(color(100), color(50), yikiklik));
-    strokeWeight(2);
-    
-    float gercekH = h * (1 - yikiklik * 0.4);
-    rect(0, -gercekH, w, gercekH);
-    
-    fill(yikiklik > 0.6 ? color(40) : color(200, 220, 255, 150));
-    noStroke();
-    for (int px = 8; px < w - 8; px += 15) {
-      for (int py = 15; py < gercekH - 10; py += 25) {
-        if (yikiklik < 0.8 || random(1) > 0.3) {
-          rect(px, -gercekH + py, 10, 15);
+        
+        .grid-bg {
+            background-image: 
+                linear-gradient(rgba(0, 212, 255, 0.1) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 212, 255, 0.1) 1px, transparent 1px);
+            background-size: 50px 50px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
         }
-      }
-    }
-    
-    if (yikiklik > 0.4) {
-      stroke(30, 100 * yikiklik);
-      strokeWeight(2 + yikiklik * 2);
-      line(w * 0.2, -gercekH * 0.3, w * 0.6, -gercekH * 0.7);
-    }
-    
-    if (yikiklik < 0.5) {
-      fill(lerpColor(color(80), color(60), yikiklik));
-      rect(w/2 - 8, -gercekH - 40, 16, 40);
-      if (frameCount % 10 == 0) {
-        partikuller.add(new Partikul("duman", 0, x + w/2, y - gercekH - 50));
-      }
-    }
-    
-    if (yikiklik > 0.85) {
-      fill(50, 40, 30);
-      beginShape();
-      vertex(0, 0);
-      vertex(w * 0.3, -30);
-      vertex(w * 0.7, -20);
-      vertex(w, 0);
-      endShape(CLOSE);
-    }
-    
-    popMatrix();
-  }
-  
-  void iyiModGuncelle(float oran) {
-    yesillik = oran;
-  }
-  
-  void iyiModCiz() {
-    pushMatrix();
-    translate(x, y);
-    
-    color binaRengi = lerpColor(color(180, 190, 200), color(220, 240, 230), yesillik);
-    fill(binaRengi);
-    stroke(lerpColor(color(150), color(100, 200, 150), yesillik));
-    strokeWeight(2);
-    rect(0, -h, w, h);
-    
-    for (int px = 10; px < w - 10; px += 20) {
-      for (int py = 15; py < h - 15; py += 30) {
-        float parlama = 0.3 + yesillik * 0.5 + sin(frameCount * 0.02 + px + py) * 0.1;
-        fill(200 + parlama * 55, 220 + parlama * 35, 255, 150 + parlama * 100);
-        noStroke();
-        rect(px, -h + py, 12, 20);
-      }
-    }
-    
-    if (yesillik > 0.4) {
-      fill(60, 100, 60);
-      rect(-5, -h - 12, w + 10, 12);
-      
-      stroke(34, 100, 34);
-      strokeWeight(2);
-      for (int i = 10; i < w - 10; i += 20) {
-        float bitkiY = -h - 12;
-        line(i, bitkiY, i, bitkiY - 8 - yesillik * 10);
-        noStroke();
-        fill(50 + yesillik * 50, 150 + yesillik * 50, 50);
-        ellipse(i, bitkiY - 8 - yesillik * 10, 6, 6);
-      }
-    }
-    
-    if (yesillik > 0.6) {
-      fill(0, 40, 80);
-      stroke(100, 150, 200);
-      strokeWeight(1);
-      
-      pushMatrix();
-      translate(w/2, -h - 8);
-      rotate(radians(-20));
-      rect(-25, -15, 50, 30);
-      
-      stroke(50, 100, 150);
-      for (int i = -20; i < 25; i += 10) line(i, -15, i, 15);
-      for (int i = -10; i < 15; i += 10) line(-25, i, 25, i);
-      
-      if (yesillik > 0.75) {
-        noStroke();
-        fill(200, 255, 255, 100 + sin(frameCount * 0.1) * 50);
-        rect(-25, -15, 50, 30);
-      }
-      popMatrix();
-    }
-    
-    popMatrix();
-  }
-}
-
-class Agac {
-  float x, y, boyut = 0, hedefBoyut;
-  
-  Agac(float x, float y) {
-    this.x = x;
-    this.y = y;
-    this.hedefBoyut = random(40, 80);
-  }
-  
-  void iyiModGuncelle(float oran) {
-    // Sadece yukarıda (dağ tepelerinde) görünsün
-    if (y > height/2 - 50) boyut = 0; // Aşağıdaysa gösterme
-    else boyut = lerp(boyut, hedefBoyut * oran, 0.03);
-  }
-  
-  void iyiModCiz() {
-    if (boyut < 5 || y > height/2 - 30) return; // Güvenlik kontrolü
-    
-    fill(101, 67, 33);
-    noStroke();
-    rect(x - boyut/8, y, boyut/4, boyut/3);
-    
-    color yaprakRengi = lerpColor(color(180, 140, 80), color(34, 139, 34), boyut/hedefBoyut);
-    fill(yaprakRengi);
-    
-    // Yaprak kümesi
-    ellipse(x, y - boyut/2, boyut, boyut * 0.8);
-    ellipse(x - boyut/3, y - boyut/3, boyut * 0.6, boyut * 0.5);
-    ellipse(x + boyut/3, y - boyut/3, boyut * 0.6, boyut * 0.5);
-  }
-}
-
-class YeraltiSiginagi {
-  float x, y, aciklik = 0;
-  
-  YeraltiSiginagi(float x, float y) {
-    this.x = x;
-    this.y = y;
-  }
-  
-  void guncelle(float oran) {
-    float hedefAciklik = (oran > 0.7) ? 1 : 0;
-    aciklik = lerp(aciklik, hedefAciklik, 0.03);
-  }
-  
-  void ciz() {
-    if (aciklik < 0.01) return;
-    
-    pushMatrix();
-    translate(x, y);
-    
-    fill(60, 50, 40);
-    stroke(40, 30, 20);
-    strokeWeight(2);
-    
-    for (int i = 0; i < 5; i++) {
-      float yPos = -i * 15 * aciklik;
-      rect(-40 + i * 5, yPos, 80 - i * 10, 12);
-    }
-    
-    noStroke();
-    fill(255, 200, 100, 150 * aciklik + sin(frameCount * 0.1) * 30);
-    ellipse(0, -60 * aciklik, 60 * aciklik, 40 * aciklik);
-    
-    if (aciklik > 0.6) {
-      float yanipSönme = sin(frameCount * 0.2) > 0 ? 255 : 100;
-      fill(255, 0, 0, yanipSönme);
-      triangle(-30, -80 * aciklik, -40, -60 * aciklik, -20, -60 * aciklik);
-      triangle(30, -80 * aciklik, 20, -60 * aciklik, 40, -60 * aciklik);
-    }
-    
-    if (aciklik > 0.8) {
-      fill(30, 100 * aciklik);
-      for (int i = 0; i < 3; i++) {
-        float xPos = sin(frameCount * 0.02 + i * 2) * 20;
-        float yPos = -30 - i * 10;
-        ellipse(xPos, yPos, 8, 8);
-        rect(xPos - 3, yPos, 6, 12);
-      }
-    }
-    
-    popMatrix();
-  }
-}
-
-class Bulut {
-  float x, y, hiz;
-  float[] parcalar;
-  int tip;
-  
-  Bulut(float x, float y) {
-    this.x = x;
-    this.y = y;
-    this.hiz = random(0.3, 0.8);
-    this.parcalar = new float[5];
-    for (int i = 0; i < 5; i++) parcalar[i] = random(30, 60);
-  }
-  
-  void kotuModGuncelle(float oran) {
-    tip = oran > 0.5 ? 1 : 0;
-    hiz = 0.5 + oran * 2;
-    x += hiz;
-    if (x > width + 100) x = -100;
-  }
-  
-  void iyiModGuncelle(float oran) {
-    tip = 0;
-    hiz = 0.3 + oran * 0.5;
-    x += hiz;
-    if (x > width + 100) x = -100;
-  }
-  
-  void ciz() {
-    noStroke();
-    if (tip == 1) {
-      fill(80, 70, 70, 200);
-      for (int i = 0; i < parcalar.length; i++) {
-        ellipse(x + i * 30, y + sin(frameCount * 0.05 + i) * 10, parcalar[i] * 1.5, parcalar[i]);
-      }
-      if (random(1) < 0.02) {
-        stroke(255, 255, 200, 200);
-        strokeWeight(3);
-        float x1 = x + 60, y1 = y + 30;
-        for (int i = 0; i < 5; i++) {
-          float x2 = x1 + random(-20, 20);
-          float y2 = y1 + random(20, 40);
-          line(x1, y1, x2, y2);
-          x1 = x2;
-          y1 = y2;
+        
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: #00d4ff;
+            border-radius: 50%;
+            animation: particle-float 10s infinite linear;
+            opacity: 0.6;
         }
-      }
-    } else {
-      fill(255, 255, 255, 180);
-      for (int i = 0; i < parcalar.length; i++) {
-        ellipse(x + i * 25, y, parcalar[i], parcalar[i] * 0.8);
-      }
-    }
-  }
-}
+        
+        @keyframes particle-float {
+            0% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { transform: translateY(-100vh) rotate(720deg); opacity: 0; }
+        }
+        
+        .tab-active {
+            background: linear-gradient(135deg, #00d4ff, #7c3aed);
+            color: white;
+            transform: scale(1.05);
+        }
+        
+        .project-card {
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .project-card:hover {
+            transform: translateY(-10px) scale(1.02);
+            box-shadow: 0 20px 40px rgba(0, 212, 255, 0.2);
+        }
+        
+        .code-block {
+            background: #0d1117;
+            border-radius: 12px;
+            overflow: hidden;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .syntax-keyword { color: #ff7b72; }
+        .syntax-string { color: #a5d6ff; }
+        .syntax-comment { color: #8b949e; }
+        .syntax-function { color: #d2a8ff; }
+        .syntax-number { color: #79c0ff; }
+        
+        .circuit-svg path, .circuit-svg line, .circuit-svg rect, .circuit-svg circle {
+            stroke-dasharray: 1000;
+            stroke-dashoffset: 1000;
+            animation: draw 3s ease-in-out forwards;
+        }
+        
+        @keyframes draw {
+            to { stroke-dashoffset: 0; }
+        }
+        
+        .team-member {
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+        }
+        
+        .team-member::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(0, 212, 255, 0.1), transparent);
+            transform: rotate(45deg);
+            transition: all 0.5s;
+            opacity: 0;
+        }
+        
+        .team-member:hover::before {
+            animation: shine 0.5s ease-in-out;
+            opacity: 1;
+        }
+        
+        @keyframes shine {
+            0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+            100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+        }
+        
+        .scratch-embed {
+            position: relative;
+            width: 100%;
+            padding-bottom: 75%;
+            height: 0;
+            overflow: hidden;
+            border-radius: 12px;
+        }
+        
+        .scratch-embed iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+        
+        .arcgis-embed {
+            position: relative;
+            width: 100%;
+            height: 600px;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 2px solid rgba(59, 130, 246, 0.3);
+        }
+        
+        .arcgis-embed iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            border-radius: 12px;
+        }
+        
+        .water-level {
+            animation: wave 3s ease-in-out infinite;
+        }
+        
+        @keyframes wave {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+        
+        .hero-title {
+            background: linear-gradient(135deg, #00d4ff 0%, #7c3aed 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
 
-class Kus {
-  float x, y, hiz, aci;
-  
-  Kus() {
-    this.x = random(width);
-    this.y = random(50, height/2);
-    this.hiz = random(2, 4);
-    this.aci = 0;
-  }
-  
-  void guncelle(float oran) {
-    if (oran < 0.4) return;
-    float gorunurluk = (oran - 0.4) / 0.6;
-    x += hiz * gorunurluk;
-    y += sin(frameCount * 0.05 + x * 0.01) * 2;
-    aci = sin(frameCount * 0.1) * 0.3;
-    if (x > width + 50) {
-      x = -50;
-      y = random(50, height/2 - 100 * oran);
-    }
-  }
-  
-  void ciz() {
-    if (suOrani < 0.4) return;
-    float gorunurluk = (suOrani - 0.4) / 0.6;
-    
-    pushMatrix();
-    translate(x, y);
-    rotate(aci);
-    fill(255, 255 * gorunurluk);
-    noStroke();
-    
-    float kanatAcisi = sin(frameCount * 0.3) * 0.5;
-    pushMatrix();
-    rotate(-kanatAcisi);
-    ellipse(-15, -5, 25, 12);
-    popMatrix();
-    
-    pushMatrix();
-    rotate(kanatAcisi);
-    ellipse(15, -5, 25, 12);
-    popMatrix();
-    
-    ellipse(0, 0, 20, 10);
-    popMatrix();
-  }
-}
+        .loading-spinner {
+            border: 4px solid rgba(255,255,255,0.1);
+            border-left-color: #3b82f6;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
 
-class Yildiz {
-  float x, y, parlaklik;
-  
-  Yildiz() {
-    this.x = random(width);
-    this.y = random(height/2);
-    this.parlaklik = random(100, 255);
-  }
-  
-  void guncelle(float oran) {
-    parlaklik = random(100, 255) * oran;
-  }
-  
-  void ciz() {
-    if (parlaklik < 10) return;
-    fill(255, 255, 220, parlaklik);
-    noStroke();
-    ellipse(x, y, random(2, 4), random(2, 4));
-    if (random(1) < 0.1) {
-      stroke(255, parlaklik * 0.5);
-      line(x - 5, y, x + 5, y);
-      line(x, y - 5, x, y + 5);
-    }
-  }
-}
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
 
-class Partikul {
-  float x, y, vx, vy, yasam;
-  String tip;
-  color renk;
-  int katman;
-  
-  Partikul(String tip, int katman) {
-    this.tip = tip;
-    this.katman = katman;
-    x = random(width);
-    y = random(height);
-    
-    if (tip.equals("toz")) {
-      vx = random(1, 4) + katman;
-      vy = random(-0.5, 0.5);
-      renk = color(180 + random(40), 150 + random(40), 100 + random(40));
-      yasam = 200;
-    } else if (tip.equals("radyasyon")) {
-      vx = random(-0.5, 0.5);
-      vy = random(-1, -0.5);
-      renk = color(0, 255, 100);
-      yasam = 255;
-    } else if (tip.equals("duman")) {
-      vx = random(-0.5, 0.5);
-      vy = random(-2, -0.5);
-      renk = color(80);
-      yasam = 150;
-    } else if (tip.equals("polen")) {
-      vx = random(-1, 1);
-      vy = random(-0.5, -1.5);
-      renk = color(255, 255, 200);
-      yasam = 300;
-    } else if (tip.equals("isik")) {
-      vx = random(-0.2, 0.2);
-      vy = random(-0.5, 0.5);
-      renk = color(255, 255, 220);
-      yasam = 200;
-    } else if (tip.equals("kutlama")) {
-      vx = random(-4, 4);
-      vy = random(-8, -3);
-      renk = color(random(100, 255), random(150, 255), random(100, 200));
-      yasam = 400;
-      x = width/2 + random(-350, 350);
-      y = height/3 + random(-80, 80);
-    }
-  }
-  
-  Partikul(String tip, int katman, float x, float y) {
-    this(tip, katman);
-    this.x = x;
-    this.y = y;
-  }
-  
-  void kotuGuncelle(float oran) {
-    x += vx * (1 + oran);
-    y += vy;
-    yasam -= 1;
-    if (tip.equals("toz")) y += sin(x * 0.01) * 0.5;
-    if (x > width) x = 0;
-    if (x < 0) x = width;
-  }
-  
-  void iyiGuncelle(float oran) {
-    x += vx;
-    y += vy;
-    yasam -= 0.5;
-    if (tip.equals("polen")) x += sin(y * 0.02 + frameCount * 0.02) * 0.5;
-    if (tip.equals("kutlama")) {
-      vy += 0.15; // Yerçekimi
-      vx *= 0.98; // Sürtünme
-      yasam -= 0.8;
-    }
-    if (x > width) x = 0;
-    if (x < 0) x = width;
-  }
-  
-  void ciz() {
-    noStroke();
-    fill(red(renk), green(renk), blue(renk), yasam);
-    
-    if (tip.equals("radyasyon")) {
-      pushMatrix();
-      translate(x, y);
-      rotate(frameCount * 0.05);
-      fill(0, 255, 100, yasam);
-      ellipse(0, 0, 10, 10);
-      for (int i = 0; i < 3; i++) {
-        rotate(TWO_PI / 3);
-        ellipse(0, -8, 4, 8);
-      }
-      popMatrix();
-    } else if (tip.equals("isik")) {
-      fill(255, 255, 200, yasam * 0.6);
-      ellipse(x, y, 3, 8);
-    } else if (tip.equals("kutlama")) {
-      // Kutlama partikülleri - parlak ve renkli
-      pushMatrix();
-      translate(x, y);
-      rotate(frameCount * 0.05);
-      fill(red(renk), green(renk), blue(renk), yasam);
-      rect(-3, -3, 6, 6);
-      // Parlama efekti
-      fill(255, yasam * 0.5);
-      ellipse(0, 0, 8, 8);
-      popMatrix();
-    } else {
-      ellipse(x, y, 4, 4);
-    }
-  }
-}
+        .role-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-top: 0.5rem;
+        }
+
+        /* Modal Styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+            opacity: 1;
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, #1a1a2e 0%, #0f0f1e 100%);
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            border-radius: 20px;
+            padding: 2rem;
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            transform: scale(0.9);
+            transition: transform 0.3s ease;
+            position: relative;
+        }
+
+        .modal-overlay.active .modal-content {
+            transform: scale(1);
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.2rem;
+            transition: all 0.3s ease;
+        }
+
+        .modal-close:hover {
+            background: rgba(255, 0, 0, 0.3);
+            transform: rotate(90deg);
+        }
+
+        /* Chart Styles */
+        .chart-container {
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 16px;
+            padding: 1.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .progress-bar {
+            height: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .progress-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 1s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .progress-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            animation: shimmer 2s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, rgba(0, 212, 255, 0.1), rgba(124, 58, 237, 0.1));
+            border: 1px solid rgba(0, 212, 255, 0.2);
+            border-radius: 12px;
+            padding: 1rem;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(0, 212, 255, 0.5);
+        }
+
+        .glow-effect {
+            position: relative;
+        }
+
+        .glow-effect::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(45deg, #00d4ff, #7c3aed, #00d4ff);
+            border-radius: inherit;
+            z-index: -1;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            filter: blur(10px);
+        }
+
+        .glow-effect:hover::before {
+            opacity: 0.5;
+        }
+    </style>
+</head>
+<body class="text-white font-inter min-h-screen">
+
+    <!-- Background Effects -->
+    <div class="grid-bg"></div>
+    <div id="particles"></div>
+
+    <!-- Navigation -->
+    <nav class="fixed top-0 w-full z-50 glass-panel border-b border-white/10">
+        <div class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <div class="flex items-center space-x-3">
+                <i class="fas fa-rocket text-tech-blue text-2xl animate-pulse"></i>
+                <span class="font-orbitron font-bold text-xl tracking-wider">TEKNOFEST<span class="text-tech-blue">2026</span></span>
+            </div>
+            <div class="hidden md:flex space-x-8">
+                <button onclick="scrollToSection('team')" class="hover:text-tech-blue transition-colors">Ekip</button>
+                <button onclick="scrollToSection('scratch')" class="hover:text-tech-blue transition-colors">Scratch</button>
+                <button onclick="scrollToSection('arcgis')" class="hover:text-tech-blue transition-colors">ArcGIS</button>
+                <button onclick="scrollToSection('arduino')" class="hover:text-tech-blue transition-colors">Arduino</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="relative pt-32 pb-20 px-6 overflow-hidden">
+        <div class="container mx-auto text-center relative z-10">
+            <div class="inline-block mb-4 px-4 py-1 rounded-full glass-panel border border-tech-blue/30 text-tech-blue text-sm font-semibold tracking-wider animate-pulse">
+                TEKNOFEST YARIŞMASI 2026
+            </div>
+            <h1 class="font-orbitron text-5xl md:text-7xl font-black mb-6 leading-tight hero-title animate-float">
+                Batu & Eymen
+            </h1>
+            <p class="text-xl text-gray-400 max-w-2xl mx-auto mb-12 leading-relaxed">
+                Hayriye Uymazsoy danışmanlığında Teknofest 2026 için hazırladığımız projemizde 
+                Eymen Scratch oyun geliştirme, Batu ise ArcGIS haritalama ve Arduino iklim simülasyonu 
+                sistemleri üzerine çalışmalar yapıyor.
+            </p>
+            
+            <!-- Interactive Tabs -->
+            <div class="flex flex-wrap justify-center gap-4 mb-16">
+                <button onclick="showSection('team')" id="tab-team" class="tab-btn px-8 py-4 rounded-xl glass-panel hover:border-tech-blue transition-all duration-300 flex items-center gap-3 group glow-effect">
+                    <i class="fas fa-users text-2xl group-hover:text-tech-blue transition-colors"></i>
+                    <div class="text-left">
+                        <div class="font-bold">Proje Ekibi</div>
+                        <div class="text-xs text-gray-400">Danışman ve Üyeler</div>
+                    </div>
+                </button>
+                
+                <button onclick="showSection('scratch')" id="tab-scratch" class="tab-btn px-8 py-4 rounded-xl glass-panel hover:border-orange-400 transition-all duration-300 flex items-center gap-3 group glow-effect">
+                    <i class="fas fa-gamepad text-2xl text-orange-400 group-hover:scale-110 transition-transform"></i>
+                    <div class="text-left">
+                        <div class="font-bold">Scratch Oyunu</div>
+                        <div class="text-xs text-gray-400">Eymen'in Projesi</div>
+                    </div>
+                </button>
+                
+                <button onclick="showSection('arcgis')" id="tab-arcgis" class="tab-btn px-8 py-4 rounded-xl glass-panel hover:border-blue-400 transition-all duration-300 flex items-center gap-3 group glow-effect">
+                    <i class="fas fa-map-marked-alt text-2xl text-blue-400 group-hover:scale-110 transition-transform"></i>
+                    <div class="text-left">
+                        <div class="font-bold">ArcGIS StoryMap</div>
+                        <div class="text-xs text-gray-400">Batu'nun Projesi</div>
+                    </div>
+                </button>
+                
+                <button onclick="showSection('arduino')" id="tab-arduino" class="tab-btn px-8 py-4 rounded-xl glass-panel hover:border-green-400 transition-all duration-300 flex items-center gap-3 group glow-effect">
+                    <i class="fas fa-microchip text-2xl text-green-400 group-hover:scale-110 transition-transform"></i>
+                    <div class="text-left">
+                        <div class="font-bold">Arduino & Processing</div>
+                        <div class="text-xs text-gray-400">Batu'nun Projesi</div>
+                    </div>
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Content Sections -->
+    <main class="container mx-auto px-6 pb-20 space-y-8">
+
+        <!-- Team Section -->
+        <section id="team" class="section-content glass-panel rounded-3xl p-8 md:p-12 border border-white/10">
+            <div class="flex items-center gap-4 mb-8">
+                <div class="w-12 h-12 rounded-full bg-gradient-to-br from-tech-blue to-tech-purple flex items-center justify-center">
+                    <i class="fas fa-users text-xl"></i>
+                </div>
+                <h2 class="font-orbitron text-3xl font-bold">Proje Ekibi</h2>
+            </div>
+            
+            <div class="grid md:grid-cols-3 gap-6">
+                <!-- Danışman -->
+                <div class="team-member glass-panel rounded-2xl p-6 text-center group hover:border-yellow-400 transition-all duration-300 border-2 border-yellow-400/30" onclick="openModal('danisman')">
+                    <div class="w-24 h-24 mx-auto mb-4 rounded-full bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center text-3xl font-bold shadow-lg group-hover:scale-110 transition-transform">
+                        <i class="fas fa-chalkboard-teacher"></i>
+                    </div>
+                    <h3 class="font-bold text-lg mb-1">Hayriye Uymazsoy</h3>
+                    <p class="text-yellow-400 text-sm font-semibold mb-2">Danışman Öğretmen</p>
+                    <p class="text-gray-400 text-sm">Proje danışmanlığı ve yönlendirme</p>
+                    <div class="mt-4 flex justify-center gap-3">
+                        <span class="px-3 py-1 rounded-full bg-yellow-500/20 text-yellow-300 text-xs">Mentor</span>
+                    </div>
+                    <div class="mt-3 text-xs text-gray-500">
+                        <i class="fas fa-hand-pointer mr-1"></i> Detaylar için tıklayın
+                    </div>
+                </div>
+
+                <!-- Batu -->
+                <div class="team-member glass-panel rounded-2xl p-6 text-center group hover:border-tech-blue transition-all duration-300" onclick="openModal('batu')">
+                    <div class="w-24 h-24 mx-auto mb-4 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-3xl font-bold shadow-lg group-hover:scale-110 transition-transform">
+                        B
+                    </div>
+                    <h3 class="font-bold text-lg mb-1">Abdullah Batu Baddal</h3>
+                    <p class="text-tech-blue text-sm font-semibold mb-2">Proje Üyesi</p>
+                    <p class="text-gray-400 text-sm mb-3">ArcGIS haritalama, Arduino iklim simülasyonu ve Processing görselleştirme</p>
+                    
+                    <div class="mt-4 flex justify-center gap-2 flex-wrap">
+                        <span class="px-3 py-1 rounded-full bg-blue-500/20 text-blue-300 text-xs">ArcGIS</span>
+                        <span class="px-3 py-1 rounded-full bg-green-500/20 text-green-300 text-xs">Arduino</span>
+                        <span class="px-3 py-1 rounded-full bg-purple-500/20 text-purple-300 text-xs">Processing</span>
+                    </div>
+                    <div class="mt-3 text-xs text-gray-500">
+                        <i class="fas fa-hand-pointer mr-1"></i> Detaylar için tıklayın
+                    </div>
+                </div>
+
+                <!-- Eymen -->
+                <div class="team-member glass-panel rounded-2xl p-6 text-center group hover:border-orange-400 transition-all duration-300" onclick="openModal('eymen')">
+                    <div class="w-24 h-24 mx-auto mb-4 rounded-full bg-gradient-to-br from-orange-400 to-red-500 flex items-center justify-center text-3xl font-bold shadow-lg group-hover:scale-110 transition-transform">
+                        E
+                    </div>
+                    <h3 class="font-bold text-lg mb-1">Ahmet Eymen Alkaptan</h3>
+                    <p class="text-orange-400 text-sm font-semibold mb-2">Proje Üyesi</p>
+                    <p class="text-gray-400 text-sm mb-3">Scratch oyun geliştirme, karakter tasarımı ve oyun mekanikleri</p>
+                    
+                    <div class="mt-4 flex justify-center gap-2 flex-wrap">
+                        <span class="px-3 py-1 rounded-full bg-orange-500/20 text-orange-300 text-xs">Scratch</span>
+                        <span class="px-3 py-1 rounded-full bg-red-500/20 text-red-300 text-xs">Oyun Tasarımı</span>
+                    </div>
+                    <div class="mt-3 text-xs text-gray-500">
+                        <i class="fas fa-hand-pointer mr-1"></i> Detaylar için tıklayın
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Scratch Section - Eymen -->
+        <section id="scratch" class="section-content hidden glass-panel rounded-3xl p-8 md:p-12 border border-orange-500/30">
+            <div class="flex items-center gap-4 mb-8">
+                <div class="w-12 h-12 rounded-full bg-gradient-to-br from-orange-400 to-red-500 flex items-center justify-center">
+                    <i class="fas fa-gamepad text-xl"></i>
+                </div>
+                <div>
+                    <h2 class="font-orbitron text-3xl font-bold">Scratch Oyunu</h2>
+                    <p class="text-gray-400 mt-1">Ahmet Eymen Alkaptan tarafından geliştirilen Scratch projesi</p>
+                </div>
+            </div>
+
+            <div class="grid lg:grid-cols-3 gap-8">
+                <div class="lg:col-span-2">
+                    <div class="glass-panel rounded-2xl p-4 bg-black/50">
+                        <div class="scratch-embed">
+                            <iframe src="https://scratch.mit.edu/projects/1218225288/embed" allowtransparency="true" allowfullscreen></iframe>
+                        </div>
+                    </div>
+                    <div class="mt-4 flex justify-between items-center">
+                        <div class="text-sm text-gray-400">
+                            <i class="fas fa-user mr-2 text-orange-400"></i>
+                            Geliştirici: Ahmet Eymen Alkaptan
+                        </div>
+                        <a href="https://scratch.mit.edu/projects/1218225288/" target="_blank" class="px-4 py-2 rounded-lg bg-orange-500 hover:bg-orange-600 text-white text-sm font-semibold transition-colors">
+                            <i class="fas fa-external-link-alt mr-2"></i>
+                            Scratch'te Aç
+                        </a>
+                    </div>
+                </div>
+
+                <div class="space-y-4">
+                    <div class="glass-panel rounded-2xl p-6 border-l-4 border-orange-400">
+                        <h3 class="font-bold text-lg mb-3 flex items-center gap-2">
+                            <i class="fas fa-info-circle text-orange-400"></i>
+                            Oyun Hakkında
+                        </h3>
+                        <p class="text-gray-300 text-sm leading-relaxed mb-4">
+                            Bu oyun Ahmet Eymen Alkaptan tarafından MIT Scratch platformunda kodlanmıştır. Oyunun amacı Ortaokul öğrencilerine İklim değişikliği hakkında farkındalık kazandırmaktır. Daha fazla bilgi için Scratch sayfasını ziyaret ediniz.
+                        </p>
+                        <div class="p-3 rounded-lg bg-orange-500/10 border border-orange-500/30">
+                            <p class="text-xs text-orange-300">
+                                <i class="fas fa-lightbulb mr-2"></i>
+                                Oyunu oynamak için üzerine tıklayın veya tam ekran yapın.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="glass-panel rounded-2xl p-6">
+                        <h3 class="font-bold text-lg mb-3">Teknik Bilgiler</h3>
+                        <div class="space-y-3 text-sm">
+                            <div class="flex justify-between items-center p-2 rounded bg-white/5">
+                                <span class="text-gray-400">Platform:</span>
+                                <span class="text-orange-400 font-semibold">MIT Scratch</span>
+                            </div>
+                            <div class="flex justify-between items-center p-2 rounded bg-white/5">
+                                <span class="text-gray-400">Proje ID:</span>
+                                <span class="text-white">1218225288</span>
+                            </div>
+                            <div class="flex justify-between items-center p-2 rounded bg-white/5">
+                                <span class="text-gray-400">Geliştirici:</span>
+                                <span class="text-white">Ahmet Eymen Alkaptan</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ArcGIS Section - Batu -->
+        <section id="arcgis" class="section-content hidden glass-panel rounded-3xl p-8 md:p-12 border border-blue-500/30">
+            <div class="flex items-center gap-4 mb-8">
+                <div class="w-12 h-12 rounded-full bg-gradient-to-br from-blue-400 to-cyan-500 flex items-center justify-center">
+                    <i class="fas fa-map-marked-alt text-xl"></i>
+                </div>
+                <div>
+                    <h2 class="font-orbitron text-3xl font-bold">Göller Yöresi StoryMap</h2>
+                    <p class="text-gray-400 mt-1">Abdullah Batu Baddal tarafından ArcGIS ile hazırlanan coğrafi keşif projesi</p>
+                </div>
+            </div>
+
+            <!-- ArcGIS Embed -->
+            <div class="mb-8">
+                <div class="glass-panel rounded-2xl p-4 bg-black/20">
+                    <div class="arcgis-embed relative">
+                        <iframe 
+                            src="https://storymaps.arcgis.com/stories/aad70442b95f476c8b23ec7a0e27e209?cover=false" 
+                            allowfullscreen 
+                            allow="geolocation"
+                            loading="lazy"
+                            title="Göller Yöresi StoryMap">
+                        </iframe>
+                        <div id="arcgis-fallback" class="hidden absolute inset-0 flex flex-col items-center justify-center bg-gray-900/90 rounded-xl">
+                            <i class="fas fa-exclamation-triangle text-4xl text-yellow-400 mb-4"></i>
+                            <p class="text-white text-lg mb-4">StoryMap yüklenemedi</p>
+                            <a href="https://storymaps.arcgis.com/stories/aad70442b95f476c8b23ec7a0e27e209" target="_blank" class="px-6 py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold transition-colors">
+                                <i class="fas fa-external-link-alt mr-2"></i>
+                                Yeni Sekmede Aç
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-4 flex justify-between items-center">
+                    <div class="text-sm text-gray-400">
+                        <i class="fas fa-user mr-2 text-blue-400"></i>
+                        Hazırlayan: Abdullah Batu Baddal
+                    </div>
+                    <div class="flex gap-3">
+                        <button onclick="reloadArcGIS()" class="px-4 py-2 rounded-lg glass-panel hover:bg-white/10 text-white text-sm font-semibold transition-colors">
+                            <i class="fas fa-sync-alt mr-2"></i>
+                            Yenile
+                        </button>
+                        <a href="https://storymaps.arcgis.com/stories/aad70442b95f476c8b23ec7a0e27e209" target="_blank" class="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold transition-colors">
+                            <i class="fas fa-external-link-alt mr-2"></i>
+                            Tam Ekran
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-6">
+                <div class="glass-panel rounded-2xl p-6 border-l-4 border-blue-400">
+                    <h3 class="font-bold text-lg mb-3 flex items-center gap-2">
+                        <i class="fas fa-water text-blue-400"></i>
+                        Keşfedilen Göller
+                    </h3>
+                    <ul class="space-y-2 text-sm text-gray-300">
+                        <li class="flex items-center gap-2">
+                            <span class="w-2 h-2 rounded-full bg-blue-400"></span>
+                            Eğirdir Gölü
+                        </li>
+                        <li class="flex items-center gap-2">
+                            <span class="w-2 h-2 rounded-full bg-blue-400"></span>
+                            Burdur Gölü
+                        </li>
+                        <li class="flex items-center gap-2">
+                            <span class="w-2 h-2 rounded-full bg-blue-400"></span>
+                            Kovada Gölü
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="glass-panel rounded-2xl p-6 border-l-4 border-purple-400">
+                    <h3 class="font-bold text-lg mb-3 flex items-center gap-2">
+                        <i class="fas fa-book-open text-purple-400"></i>
+                        StoryMap Özellikleri
+                    </h3>
+                    <ul class="space-y-2 text-sm text-gray-300">
+                        <li class="flex items-center gap-2">
+                            <i class="fas fa-image text-purple-400 text-xs"></i>
+                            Fotoğraf galerileri
+                        </li>
+                        <li class="flex items-center gap-2">
+                            <i class="fas fa-video text-purple-400 text-xs"></i>
+                            Video entegrasyonu
+                        </li>
+                        <li class="flex items-center gap-2">
+                            <i class="fas fa-scroll text-purple-400 text-xs"></i>
+                            Kaydırma hikayesi
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="mt-6 p-4 rounded-lg bg-blue-500/10 border border-blue-500/30">
+                <p class="text-sm text-gray-300">
+                    <i class="fas fa-user mr-2 text-blue-400"></i>
+                    <strong>Abdullah Batu Baddal</strong> tarafından hazırlanan bu StoryMap, Göller Yöresi'nin coğrafi, 
+                    tarihi ve kültürel özelliklerini interaktif haritalar üzerinden sunmaktadır.
+                </p>
+            </div>
+        </section>
+
+        <!-- Arduino Section - Batu -->
+        <section id="arduino" class="section-content hidden glass-panel rounded-3xl p-8 md:p-12 border border-green-500/30">
+            <div class="flex items-center gap-4 mb-8">
+                <div class="w-12 h-12 rounded-full bg-gradient-to-br from-green-400 to-emerald-600 flex items-center justify-center">
+                    <i class="fas fa-microchip text-xl"></i>
+                </div>
+                <div>
+                    <h2 class="font-orbitron text-3xl font-bold">İklim Simülasyonu</h2>
+                    <p class="text-gray-400 mt-1">Abdullah Batu Baddal tarafından geliştirilen Arduino ve Processing projesi</p>
+                </div>
+            </div>
+
+            <!-- Statistics Dashboard -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+                <div class="stat-card">
+                    <div class="text-2xl font-bold text-green-400 mb-1">2</div>
+                    <div class="text-xs text-gray-400">Senaryo Modu</div>
+                </div>
+                <div class="stat-card">
+                    <div class="text-2xl font-bold text-blue-400 mb-1">5</div>
+                    <div class="text-xs text-gray-400">Sensör/Bileşen</div>
+                </div>
+                <div class="stat-card">
+                    <div class="text-2xl font-bold text-purple-400 mb-1">9600</div>
+                    <div class="text-xs text-gray-400">Baud Rate</div>
+                </div>
+                <div class="stat-card">
+                    <div class="text-2xl font-bold text-yellow-400 mb-1">Real-time</div>
+                    <div class="text-xs text-gray-400">Veri İletimi</div>
+                </div>
+            </div>
+
+            <div class="grid lg:grid-cols-2 gap-8 mb-8">
+                <!-- Circuit Diagram -->
+                <div class="glass-panel rounded-2xl p-6">
+                    <h3 class="font-bold text-lg mb-4 flex items-center gap-2">
+                        <i class="fas fa-project-diagram text-green-400"></i>
+                        Devre Şeması
+                    </h3>
+                    <div class="bg-gray-900 rounded-xl p-4 relative overflow-hidden">
+                        <svg class="w-full h-80 circuit-svg" viewBox="0 0 500 400">
+                            <!-- Arduino Uno R3 -->
+                            <rect x="175" y="100" width="150" height="200" fill="#00979d" rx="5" opacity="0.9"/>
+                            <text x="250" y="140" text-anchor="middle" fill="white" font-size="14" font-weight="bold">ARDUINO</text>
+                            <text x="250" y="160" text-anchor="middle" fill="white" font-size="12">UNO R3</text>
+                            
+                            <!-- USB Port -->
+                            <rect x="235" y="85" width="30" height="15" fill="#666"/>
+                            
+                            <!-- Power Pins -->
+                            <text x="190" y="190" fill="#ffd700" font-size="10">5V</text>
+                            <text x="190" y="210" fill="#888" font-size="10">GND</text>
+                            <text x="190" y="230" fill="#888" font-size="10">GND</text>
+                            
+                            <!-- Analog Pins -->
+                            <text x="190" y="260" fill="#4ade80" font-size="10">A0</text>
+                            <text x="190" y="280" fill="#4ade80" font-size="10">A1</text>
+                            
+                            <!-- Digital Pins -->
+                            <text x="310" y="190" fill="#f472b6" font-size="10">2</text>
+                            <text x="310" y="210" fill="#f472b6" font-size="10">3</text>
+                            <text x="310" y="230" fill="#f472b6" font-size="10">4</text>
+                            
+                            <!-- Water Level Sensor -->
+                            <rect x="50" y="50" width="80" height="60" fill="#3b82f6" rx="5" opacity="0.8"/>
+                            <text x="90" y="85" text-anchor="middle" fill="white" font-size="11" font-weight="bold">SU SEVİYE</text>
+                            <text x="90" y="100" text-anchor="middle" fill="white" font-size="10">SENSÖRÜ</text>
+                            
+                            <!-- Sensor Lines -->
+                            <line x1="130" y1="70" x2="175" y2="280" stroke="#4ade80" stroke-width="3"/>
+                            <text x="150" y="170" fill="#4ade80" font-size="9">Sinyal (A1)</text>
+                            
+                            <line x1="90" y1="110" x2="90" y2="300" stroke="#ffd700" stroke-width="2"/>
+                            <line x1="90" y1="300" x2="175" y2="210" stroke="#ffd700" stroke-width="2"/>
+                            <text x="120" y="250" fill="#ffd700" font-size="9">VCC</text>
+                            
+                            <line x1="70" y1="110" x2="70" y2="320" stroke="#888" stroke-width="2"/>
+                            <line x1="70" y1="320" x2="175" y2="230" stroke="#888" stroke-width="2"/>
+                            <text x="100" y="270" fill="#888" font-size="9">GND</text>
+                            
+                            <!-- Potentiometer -->
+                            <circle cx="400" cy="80" r="35" fill="#8b5cf6" opacity="0.8"/>
+                            <text x="400" y="85" text-anchor="middle" fill="white" font-size="10" font-weight="bold">POT</text>
+                            <line x1="400" y1="45" x2="400" y2="20" stroke="#ffd700" stroke-width="2"/>
+                            <line x1="400" y1="20" x2="325" y2="20" stroke="#ffd700" stroke-width="2"/>
+                            <line x1="325" y1="20" x2="325" y2="190" stroke="#ffd700" stroke-width="2"/>
+                            
+                            <line x1="365" y1="80" x2="325" y2="260" stroke="#4ade80" stroke-width="3"/>
+                            <text x="340" y="170" fill="#4ade80" font-size="9">A0</text>
+                            
+                            <!-- Buttons -->
+                            <rect x="380" y="250" width="40" height="30" fill="#ef4444" rx="3"/>
+                            <text x="400" y="270" text-anchor="middle" fill="white" font-size="9">BTN1</text>
+                            <line x1="380" y1="265" x2="325" y2="265" stroke="#f472b6" stroke-width="2"/>
+                            <line x1="325" y1="265" x2="325" y2="190" stroke="#f472b6" stroke-width="2"/>
+                            <text x="350" y="240" fill="#f472b6" font-size="9">D2</text>
+                            
+                            <rect x="380" y="300" width="40" height="30" fill="#ef4444" rx="3"/>
+                            <text x="400" y="320" text-anchor="middle" fill="white" font-size="9">BTN2</text>
+                            <line x1="380" y1="315" x2="325" y2="315" stroke="#f472b6" stroke-width="2"/>
+                            <line x1="325" y1="315" x2="325" y2="210" stroke="#f472b6" stroke-width="2"/>
+                            <text x="350" y="290" fill="#f472b6" font-size="9">D3</text>
+                            
+                            <!-- Buzzer -->
+                            <circle cx="420" cy="350" r="15" fill="#fbbf24"/>
+                            <text x="420" y="355" text-anchor="middle" fill="#000" font-size="8" font-weight="bold">BZZ</text>
+                            <line x1="405" y1="350" x2="325" y2="350" stroke="#f472b6" stroke-width="2"/>
+                            <line x1="325" y1="350" x2="325" y2="230" stroke="#f472b6" stroke-width="2"/>
+                            <text x="360" y="340" fill="#fbbf24" font-size="9">D4</text>
+                            
+                            <!-- Ground connections -->
+                            <line x1="435" y1="265" x2="470" y2="265" stroke="#888" stroke-width="2"/>
+                            <line x1="435" y1="315" x2="470" y2="315" stroke="#888" stroke-width="2"/>
+                            <line x1="470" y1="265" x2="470" y2="315" stroke="#888" stroke-width="2"/>
+                            <line x1="435" y1="350" x2="450" y2="350" stroke="#888" stroke-width="2"/>
+                            <line x1="450" y1="350" x2="450" y2="315" stroke="#888" stroke-width="2"/>
+                            
+                            <!-- Water animation -->
+                            <path d="M 60,120 Q 70,115 80,120 T 100,120 T 120,120" fill="none" stroke="#60a5fa" stroke-width="2" opacity="0.6" class="water-level"/>
+                        </svg>
+                    </div>
+                    
+                    <div class="mt-4 grid grid-cols-2 gap-2 text-xs">
+                        <div class="flex items-center gap-2">
+                            <span class="w-3 h-3 rounded-full bg-blue-500"></span>
+                            <span>Su Seviye Sensörü (A1)</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="w-3 h-3 rounded-full bg-purple-500"></span>
+                            <span>Potansiyometre (A0)</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="w-3 h-3 rounded-full bg-red-500"></span>
+                            <span>Buton 1 (D2) - Kötü Senaryo</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="w-3 h-3 rounded-full bg-red-500"></span>
+                            <span>Buton 2 (D3) - İyi Senaryo</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="w-3 h-3 rounded-full bg-yellow-400"></span>
+                            <span>Buzzer (D4)</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Components List -->
+                <div class="glass-panel rounded-2xl p-6">
+                    <h3 class="font-bold text-lg mb-4">Kullanılan Bileşenler</h3>
+                    <div class="space-y-3">
+                        <div class="flex items-center justify-between p-3 rounded-lg bg-white/5 hover:bg-white/10 transition-colors">
+                            <div class="flex items-center gap-3">
+                                <i class="fas fa-microchip text-green-400"></i>
+                                <div>
+                                    <div class="font-semibold">Arduino Uno R3</div>
+                                    <div class="text-xs text-gray-400">Ana kontrol kartı</div>
+                                </div>
+                            </div>
+                            <span class="text-xs text-gray-400">1x</span>
+                        </div>
+                        
+                        <div class="flex items-center justify-between p-3 rounded-lg bg-white/5 hover:bg-white/10 transition-colors">
+                            <div class="flex items-center gap-3">
+                                <i class="fas fa-water text-blue-400"></i>
+                                <div>
+                                    <div class="font-semibold">Su Seviye Sensörü</div>
+                                    <div class="text-xs text-gray-400">Analog giriş: A1 pin</div>
+                                </div>
+                            </div>
+                            <span class="text-xs text-gray-400">1x</span>
+                        </div>
+                        
+                        <div class="flex items-center justify-between p-3 rounded-lg bg-white/5 hover:bg-white/10 transition-colors">
+                            <div class="flex items-center gap-3">
+                                <i class="fas fa-sliders-h text-purple-400"></i>
+                                <div>
+                                    <div class="font-semibold">Potansiyometre (10k)</div>
+                                    <div class="text-xs text-gray-400">Analog giriş: A0 pin</div>
+                                </div>
+                            </div>
+                            <span class="text-xs text-gray-400">1x</span>
+                        </div>
+                        
+                        <div class="flex items-center justify-between p-3 rounded-lg bg-white/5 hover:bg-white/10 transition-colors">
+                            <div class="flex items-center gap-3">
+                                <i class="fas fa-toggle-on text-red-400"></i>
+                                <div>
+                                    <div class="font-semibold">Push Buton</div>
+                                    <div class="text-xs text-gray-400">Dijital: D2 ve D3 pinler</div>
+                                </div>
+                            </div>
+                            <span class="text-xs text-gray-400">2x</span>
+                        </div>
+                        
+                        <div class="flex items-center justify-between p-3 rounded-lg bg-white/5 hover:bg-white/10 transition-colors">
+                            <div class="flex items-center gap-3">
+                                <i class="fas fa-volume-up text-yellow-400"></i>
+                                <div>
+                                    <div class="font-semibold">Buzzer</div>
+                                    <div class="text-xs text-gray-400">Ses geri bildirimi: D4 pin</div>
+                                </div>
+                            </div>
+                            <span class="text-xs text-gray-400">1x</span>
+                        </div>
+                        
+                        <div class="flex items-center justify-between p-3 rounded-lg bg-white/5 hover:bg-white/10 transition-colors">
+                            <div class="flex items-center gap-3">
+                                <i class="fas fa-plug text-gray-400"></i>
+                                <div>
+                                    <div class="font-semibold">Breadboard & Jumper</div>
+                                    <div class="text-xs text-gray-400">Bağlantı kabloları</div>
+                                </div>
+                            </div>
+                            <span class="text-xs text-gray-400">Set</span>
+                        </div>
+                    </div>
+
+                    <div class="mt-6 p-4 rounded-lg bg-green-500/10 border border-green-500/30">
+                        <h4 class="font-semibold text-green-400 mb-2 text-sm">Bağlantı Özeti:</h4>
+                        <ul class="text-xs text-gray-300 space-y-1">
+                            <li>• <strong>Su Sensörü:</strong> Sinyal→A1, VCC→5V, GND→GND</li>
+                            <li>• <strong>Potansiyometre:</strong> Orta pin→A0, Kenarlar→5V/GND</li>
+                            <li>• <strong>Buton 1 (Kötü):</strong> Bir bacak→D2, Diğer→GND</li>
+                            <li>• <strong>Buton 2 (İyi):</strong> Bir bacak→D3, Diğer→GND</li>
+                            <li>• <strong>Buzzer:</strong> Pozitif→D4, Negatif→GND</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Code Section - Simplified -->
+            <div class="glass-panel rounded-2xl p-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="font-bold text-lg flex items-center gap-2">
+                        <i class="fas fa-code text-green-400"></i>
+                        Arduino Kaynak Kodu
+                    </h3>
+                    <a href="/mnt/kimi/upload/Processing%20kodu.txt" download class="px-4 py-2 rounded-lg bg-green-600 hover:bg-green-700 text-white text-sm font-semibold transition-colors flex items-center gap-2">
+                        <i class="fas fa-download"></i>
+                        Kodu İndir
+                    </a>
+                </div>
+                
+                <div class="bg-gray-900 rounded-xl p-6 text-center">
+                    <i class="fas fa-file-code text-5xl text-green-400 mb-4"></i>
+                    <h4 class="font-bold text-lg mb-2">Processing Kodu</h4>
+                    <p class="text-gray-400 text-sm mb-4 max-w-md mx-auto">
+                        İklim simülasyonunun görselleştirme kodunu indirmek için yukarıdaki butonu kullanabilirsiniz. 
+                        Kodu Processing IDE'sinde açarak Arduino ile birlikte çalıştırabilirsiniz.
+                    </p>
+                    <div class="flex justify-center gap-4 text-xs text-gray-500">
+                        <span class="flex items-center gap-1">
+                            <i class="fas fa-check text-green-400"></i>
+                            Processing 3.0+
+                        </span>
+                        <span class="flex items-center gap-1">
+                            <i class="fas fa-check text-green-400"></i>
+                            Arduino Uno
+                        </span>
+                        <span class="flex items-center gap-1">
+                            <i class="fas fa-check text-green-400"></i>
+                            Serial Bağlantı
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- System Flow -->
+            <div class="mt-8 grid md:grid-cols-5 gap-4">
+                <div class="glass-panel rounded-xl p-4 text-center border-t-2 border-blue-400 hover:scale-105 transition-transform">
+                    <i class="fas fa-water text-3xl text-blue-400 mb-2 animate-bounce"></i>
+                    <div class="font-bold text-sm">Su Sensörü</div>
+                    <div class="text-xs text-gray-400 mt-1">A1 Analog</div>
+                </div>
+                <div class="glass-panel rounded-xl p-4 text-center border-t-2 border-purple-400 hover:scale-105 transition-transform">
+                    <i class="fas fa-sliders-h text-3xl text-purple-400 mb-2 animate-pulse"></i>
+                    <div class="font-bold text-sm">Potansiyometre</div>
+                    <div class="text-xs text-gray-400 mt-1">A0 Analog</div>
+                </div>
+                <div class="glass-panel rounded-xl p-4 text-center border-t-2 border-green-400 hover:scale-105 transition-transform">
+                    <i class="fas fa-microchip text-3xl text-green-400 mb-2"></i>
+                    <div class="font-bold text-sm">Arduino</div>
+                    <div class="text-xs text-gray-400 mt-1">Veri İşleme</div>
+                </div>
+                <div class="glass-panel rounded-xl p-4 text-center border-t-2 border-yellow-400 hover:scale-105 transition-transform">
+                    <i class="fas fa-usb text-3xl text-yellow-400 mb-2"></i>
+                    <div class="font-bold text-sm">Serial</div>
+                    <div class="text-xs text-gray-400 mt-1">9600 Baud</div>
+                </div>
+                <div class="glass-panel rounded-xl p-4 text-center border-t-2 border-pink-400 hover:scale-105 transition-transform">
+                    <i class="fas fa-desktop text-3xl text-pink-400 mb-2"></i>
+                    <div class="font-bold text-sm">Processing</div>
+                    <div class="text-xs text-gray-400 mt-1">Simülasyon</div>
+                </div>
+            </div>
+
+            <div class="mt-6 p-4 rounded-lg bg-blue-500/10 border border-blue-500/30">
+                <h4 class="font-semibold text-blue-400 mb-2"><i class="fas fa-info-circle mr-2"></i>Proje Hakkında:</h4>
+                <p class="text-sm text-gray-300">
+                    Bu proje <strong>Abdullah Batu Baddal</strong> tarafından geliştirilmiştir. Arduino Uno R3 kullanılarak 
+                    iklim değişikliği simülasyonu yapılmaktadır. İki senaryo bulunur: <strong>Senaryo A (İhmal Edilen Dünya)</strong> - 
+                    potansiyometre ile yılları ilerleterek çevre kirliliğini gözlemleme, ve <strong>Senaryo B (Kurtarılan Dünya)</strong> - 
+                    su sensörü ile gezegeni "besleyerek" ekosistemi iyileştirme. Processing ile görsel simülasyon eşlik eder.
+                </p>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="glass-panel border-t border-white/10 py-8 mt-20">
+        <div class="container mx-auto px-6 text-center">
+            <div class="flex justify-center items-center gap-2 mb-4">
+                <i class="fas fa-rocket text-tech-blue"></i>
+                <span class="font-orbitron font-bold">TEKNOFEST 2026</span>
+            </div>
+            <p class="text-gray-500 text-sm mb-2">Abdullah Batu Baddal & Ahmet Eymen Alkaptan | Hayriye Uymazsoy Danışmanlığında</p>
+            <p class="text-gray-600 text-xs">© 2026 Tüm hakları saklıdır.</p>
+        </div>
+    </footer>
+
+    <!-- Team Member Modal -->
+    <div id="teamModal" class="modal-overlay" onclick="closeModal(event)">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <button class="modal-close" onclick="closeModal()">
+                <i class="fas fa-times"></i>
+            </button>
+            
+            <div id="modalContent">
+                <!-- Content will be injected by JavaScript -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Team member data
+        const teamData = {
+            danisman: {
+                name: "Hayriye Uymazsoy",
+                role: "Danışman Öğretmen",
+                color: "yellow",
+                icon: "fa-chalkboard-teacher",
+                description: "Proje danışmanlığı ve yönlendirme",
+                details: [
+                    "Proje fikrinin geliştirilmesi ve şekillendirilmesi",
+                    "Teknik danışmanlık ve mentorluk",
+                    "Ekip koordinasyonu ve yönetimi",
+                    "Teknofest başvuru süreçlerinin takibi",
+                    "Proje raporlaması ve dokümantasyon"
+                ],
+                skills: ["Proje Yönetimi", "Mentorluk", "Eğitim", "Koordinasyon"]
+            },
+            batu: {
+                name: "Abdullah Batu Baddal",
+                role: "Proje Üyesi",
+                color: "blue",
+                icon: "fa-microchip",
+                description: "ArcGIS haritalama, Arduino iklim simülasyonu ve Processing görselleştirme",
+                details: [
+                    "ArcGIS StoryMap ile Göller Yöresi coğrafi keşif projesi",
+                    "Arduino Uno R3 ile iklim değişikliği simülasyonu",
+                    "Processing ile gerçek zamanlı veri görselleştirme",
+                    "Su seviye sensörü ve potansiyometre entegrasyonu",
+                    "Oyun içi ses efektleri (SFX) tasarımı ve üretimi",
+                    "Devre tasarımı ve prototipleme"
+                ],
+                skills: ["ArcGIS", "Arduino", "Processing", "Elektronik", "Ses Tasarımı", "Haritalama"]
+            },
+            eymen: {
+                name: "Ahmet Eymen Alkaptan",
+                role: "Proje Üyesi",
+                color: "orange",
+                icon: "fa-gamepad",
+                description: "Scratch oyun geliştirme, karakter tasarımı ve oyun mekanikleri",
+                details: [
+                    "MIT Scratch platformunda iklim değişikliği farkındalık oyunu",
+                    "Karakter tasarımı ve animasyon",
+                    "Oyun mekanikleri ve seviye tasarımı",
+                    "Eğitici içerik oluşturma",
+                    "Oyun içi arka plan müzikleri ve ses efektleri (SFX) tasarımı",
+                    "Kullanıcı deneyimi optimizasyonu"
+                ],
+                skills: ["Scratch", "Oyun Tasarımı", "Müzik", "Animasyon", "UX Tasarımı"]
+            }
+        };
+
+        // Modal functions
+        function openModal(memberId) {
+            const member = teamData[memberId];
+            const modal = document.getElementById('teamModal');
+            const content = document.getElementById('modalContent');
+            
+            const colorClasses = {
+                yellow: 'text-yellow-400 border-yellow-400',
+                blue: 'text-blue-400 border-blue-400',
+                orange: 'text-orange-400 border-orange-400'
+            };
+            
+            const bgClasses = {
+                yellow: 'bg-yellow-500/20 text-yellow-300',
+                blue: 'bg-blue-500/20 text-blue-300',
+                orange: 'bg-orange-500/20 text-orange-300'
+            };
+            
+            content.innerHTML = `
+                <div class="text-center mb-6">
+                    <div class="w-20 h-20 mx-auto mb-4 rounded-full bg-gradient-to-br from-${member.color}-400 to-${member.color === 'yellow' ? 'orange' : member.color === 'blue' ? 'blue-600' : 'red'}-500 flex items-center justify-center text-3xl font-bold shadow-lg">
+                        <i class="fas ${member.icon} text-white"></i>
+                    </div>
+                    <h3 class="font-orbitron text-2xl font-bold ${colorClasses[member.color].split(' ')[0]} mb-1">${member.name}</h3>
+                    <p class="${colorClasses[member.color].split(' ')[0]} font-semibold">${member.role}</p>
+                </div>
+                
+                <div class="mb-6">
+                    <h4 class="font-bold text-lg mb-3 flex items-center gap-2">
+                        <i class="fas fa-tasks ${colorClasses[member.color].split(' ')[0]}"></i>
+                        Görev ve Sorumluluklar
+                    </h4>
+                    <ul class="space-y-2">
+                        ${member.details.map(detail => `
+                            <li class="flex items-start gap-2 text-sm text-gray-300">
+                                <i class="fas fa-check-circle ${colorClasses[member.color].split(' ')[0]} mt-1 flex-shrink-0"></i>
+                                <span>${detail}</span>
+                            </li>
+                        `).join('')}
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 class="font-bold text-lg mb-3 flex items-center gap-2">
+                        <i class="fas fa-tools ${colorClasses[member.color].split(' ')[0]}"></i>
+                        Yetkinlikler
+                    </h4>
+                    <div class="flex flex-wrap gap-2">
+                        ${member.skills.map(skill => `
+                            <span class="px-3 py-1 rounded-full ${bgClasses[member.color]} text-xs font-semibold">
+                                ${skill}
+                            </span>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+            
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeModal(event) {
+            if (!event || event.target.id === 'teamModal' || event.target.closest('.modal-close')) {
+                const modal = document.getElementById('teamModal');
+                modal.classList.remove('active');
+                document.body.style.overflow = '';
+            }
+        }
+
+        // Particle Animation
+        function createParticles() {
+            const container = document.getElementById('particles');
+            for (let i = 0; i < 30; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 10 + 's';
+                particle.style.animationDuration = (Math.random() * 10 + 10) + 's';
+                container.appendChild(particle);
+            }
+        }
+        createParticles();
+
+        // Tab Navigation
+        function showSection(sectionId) {
+            document.querySelectorAll('.section-content').forEach(section => {
+                section.classList.add('hidden');
+            });
+            
+            document.getElementById(sectionId).classList.remove('hidden');
+            
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('tab-active');
+            });
+            document.getElementById('tab-' + sectionId).classList.add('tab-active');
+            
+            document.getElementById(sectionId).scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        function scrollToSection(sectionId) {
+            showSection(sectionId);
+        }
+
+        // ArcGIS Yenileme Fonksiyonu
+        function reloadArcGIS() {
+            const iframe = document.querySelector('.arcgis-embed iframe');
+            const src = iframe.src;
+            iframe.src = '';
+            setTimeout(() => {
+                iframe.src = src;
+            }, 100);
+        }
+
+        // ArcGIS Yükleme Kontrolü
+        window.addEventListener('load', function() {
+            const arcgisIframe = document.querySelector('.arcgis-embed iframe');
+            if (arcgisIframe) {
+                arcgisIframe.onerror = function() {
+                    document.getElementById('arcgis-fallback').classList.remove('hidden');
+                };
+            }
+        });
+
+        // Initialize with team section
+        showSection('team');
+
+        // Navbar scroll effect
+        window.addEventListener('scroll', () => {
+            const nav = document.querySelector('nav');
+            if (window.scrollY > 50) {
+                nav.classList.add('bg-gray-900/90');
+            } else {
+                nav.classList.remove('bg-gray-900/90');
+            }
+        });
+
+        // Keyboard navigation for modal
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closeModal();
+            }
+        });
+    </script>
+</body>
+</html>
