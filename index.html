@@ -373,6 +373,38 @@
         .glow-effect:hover::before {
             opacity: 0.5;
         }
+
+        .download-card {
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .download-card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(0, 212, 255, 0.5);
+            box-shadow: 0 10px 30px rgba(0, 212, 255, 0.2);
+        }
+
+        .download-btn {
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .download-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .download-btn:hover::before {
+            left: 100%;
+        }
     </style>
 </head>
 <body class="text-white font-inter min-h-screen">
@@ -920,40 +952,98 @@
                 </div>
             </div>
 
-            <!-- Code Section - Simplified -->
-            <div class="glass-panel rounded-2xl p-6">
-                <div class="flex justify-between items-center mb-4">
-                    <h3 class="font-bold text-lg flex items-center gap-2">
-                        <i class="fas fa-code text-green-400"></i>
-                        Arduino Kaynak Kodu
-                    </h3>
-                    <a href="/mnt/kimi/upload/Processing%20kodu.txt" download class="px-4 py-2 rounded-lg bg-green-600 hover:bg-green-700 text-white text-sm font-semibold transition-colors flex items-center gap-2">
-                        <i class="fas fa-download"></i>
-                        Kodu İndir
-                    </a>
-                </div>
+            <!-- Code Downloads Section -->
+            <div class="glass-panel rounded-2xl p-6 mb-8">
+                <h3 class="font-bold text-lg mb-6 flex items-center gap-2">
+                    <i class="fas fa-code text-green-400"></i>
+                    Kaynak Kodları
+                </h3>
                 
-                <div class="bg-gray-900 rounded-xl p-6 text-center">
-                    <i class="fas fa-file-code text-5xl text-green-400 mb-4"></i>
-                    <h4 class="font-bold text-lg mb-2">Processing Kodu</h4>
-                    <p class="text-gray-400 text-sm mb-4 max-w-md mx-auto">
-                        İklim simülasyonunun görselleştirme kodunu indirmek için yukarıdaki butonu kullanabilirsiniz. 
-                        Kodu Processing IDE'sinde açarak Arduino ile birlikte çalıştırabilirsiniz.
-                    </p>
-                    <div class="flex justify-center gap-4 text-xs text-gray-500">
-                        <span class="flex items-center gap-1">
-                            <i class="fas fa-check text-green-400"></i>
-                            Processing 3.0+
-                        </span>
-                        <span class="flex items-center gap-1">
-                            <i class="fas fa-check text-green-400"></i>
-                            Arduino Uno
-                        </span>
-                        <span class="flex items-center gap-1">
-                            <i class="fas fa-check text-green-400"></i>
-                            Serial Bağlantı
-                        </span>
+                <div class="grid md:grid-cols-2 gap-6">
+                    <!-- Arduino Code Download -->
+                    <div class="download-card glass-panel rounded-xl p-6 bg-gradient-to-br from-green-500/10 to-emerald-500/10">
+                        <div class="flex items-center gap-4 mb-4">
+                            <div class="w-14 h-14 rounded-full bg-green-500/20 flex items-center justify-center">
+                                <i class="fas fa-microchip text-2xl text-green-400"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-lg">Arduino Kodu</h4>
+                                <p class="text-xs text-gray-400">.txt dosyası</p>
+                            </div>
+                        </div>
+                        
+                        <p class="text-sm text-gray-300 mb-4">
+                            Arduino Uno R3 için iklim simülasyonu kontrol kodu. Sensör okuma, buton kontrolü ve Processing ile seri haberleşme içerir.
+                        </p>
+                        
+                        <div class="space-y-2 mb-4">
+                            <div class="flex items-center gap-2 text-xs text-gray-400">
+                                <i class="fas fa-check text-green-400"></i>
+                                <span>Potansiyometre okuma</span>
+                            </div>
+                            <div class="flex items-center gap-2 text-xs text-gray-400">
+                                <i class="fas fa-check text-green-400"></i>
+                                <span>Su seviye sensörü</span>
+                            </div>
+                            <div class="flex items-center gap-2 text-xs text-gray-400">
+                                <i class="fas fa-check text-green-400"></i>
+                                <span>Buzzer geri bildirimi</span>
+                            </div>
+                        </div>
+                        
+                        <a href="/mnt/kimi/upload/Arduino%20kodu.txt" download class="download-btn w-full py-3 rounded-lg bg-green-600 hover:bg-green-700 text-white font-semibold transition-colors flex items-center justify-center gap-2">
+                            <i class="fas fa-download"></i>
+                            Arduino Kodunu İndir
+                        </a>
                     </div>
+
+                    <!-- Processing Code Download -->
+                    <div class="download-card glass-panel rounded-xl p-6 bg-gradient-to-br from-purple-500/10 to-pink-500/10">
+                        <div class="flex items-center gap-4 mb-4">
+                            <div class="w-14 h-14 rounded-full bg-purple-500/20 flex items-center justify-center">
+                                <i class="fas fa-desktop text-2xl text-purple-400"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-lg">Processing Kodu</h4>
+                                <p class="text-xs text-gray-400">.txt dosyası</p>
+                            </div>
+                        </div>
+                        
+                        <p class="text-sm text-gray-300 mb-4">
+                            Processing IDE için görsel simülasyon kodu. Arduino'dan gelen verileri gerçek zamanlı görselleştirir.
+                        </p>
+                        
+                        <div class="space-y-2 mb-4">
+                            <div class="flex items-center gap-2 text-xs text-gray-400">
+                                <i class="fas fa-check text-purple-400"></i>
+                                <span>Seri port haberleşmesi</span>
+                            </div>
+                            <div class="flex items-center gap-2 text-xs text-gray-400">
+                                <i class="fas fa-check text-purple-400"></i>
+                                <span>Görsel simülasyon</span>
+                            </div>
+                            <div class="flex items-center gap-2 text-xs text-gray-400">
+                                <i class="fas fa-check text-purple-400"></i>
+                                <span>İki senaryo modu</span>
+                            </div>
+                        </div>
+                        
+                        <a href="/mnt/kimi/upload/Processing%20kodu(1).txt" download class="download-btn w-full py-3 rounded-lg bg-purple-600 hover:bg-purple-700 text-white font-semibold transition-colors flex items-center justify-center gap-2">
+                            <i class="fas fa-download"></i>
+                            Processing Kodunu İndir
+                        </a>
+                    </div>
+                </div>
+
+                <div class="mt-6 p-4 rounded-lg bg-blue-500/10 border border-blue-500/30">
+                    <h4 class="font-semibold text-blue-400 mb-2 text-sm"><i class="fas fa-info-circle mr-2"></i>Kullanım Talimatları:</h4>
+                    <ol class="text-xs text-gray-300 space-y-1 list-decimal list-inside">
+                        <li>Arduino IDE'sinde "Arduino kodu.txt" dosyasını açın ve kartınıza yükleyin</li>
+                        <li>Processing IDE'sini açın (processing.org'dan indirilebilir)</li>
+                        <li>"Processing kodu.txt" dosyasını Processing IDE'sine yapıştırın</li>
+                        <li>Arduino'yu USB ile bağlayın ve Processing kodunu çalıştırın</li>
+                        <li>Seri portun doğru seçildiğinden emin olun</li>
+                    </ol>
                 </div>
             </div>
 
