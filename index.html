@@ -7,6 +7,47 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'orbitron': ['Orbitron', 'sans-serif'],
+                        'inter': ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        tech: {
+                            blue: '#00d4ff',
+                            purple: '#7c3aed',
+                            dark: '#0a0a0f',
+                            darker: '#050508'
+                        }
+                    },
+                    animation: {
+                        'float': 'float 6s ease-in-out infinite',
+                        'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'gradient-x': 'gradient-x 15s ease infinite',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-20px)' },
+                        },
+                        'gradient-x': {
+                            '0%, 100%': {
+                                'background-size': '200% 200%',
+                                'background-position': 'left center'
+                            },
+                            '50%': {
+                                'background-size': '200% 200%',
+                                'background-position': 'right center'
+                            },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
     <style>
         body {
             background: linear-gradient(135deg, #0a0a0f 0%, #1a1a2e 50%, #0f0f1e 100%);
@@ -96,6 +137,7 @@
         .team-member {
             position: relative;
             overflow: hidden;
+            cursor: pointer;
         }
         
         .team-member::before {
@@ -194,6 +236,143 @@
             font-weight: 600;
             margin-top: 0.5rem;
         }
+
+        /* Modal Styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+            opacity: 1;
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, #1a1a2e 0%, #0f0f1e 100%);
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            border-radius: 20px;
+            padding: 2rem;
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            transform: scale(0.9);
+            transition: transform 0.3s ease;
+            position: relative;
+        }
+
+        .modal-overlay.active .modal-content {
+            transform: scale(1);
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.2rem;
+            transition: all 0.3s ease;
+        }
+
+        .modal-close:hover {
+            background: rgba(255, 0, 0, 0.3);
+            transform: rotate(90deg);
+        }
+
+        /* Chart Styles */
+        .chart-container {
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 16px;
+            padding: 1.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .progress-bar {
+            height: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .progress-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 1s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .progress-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            animation: shimmer 2s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, rgba(0, 212, 255, 0.1), rgba(124, 58, 237, 0.1));
+            border: 1px solid rgba(0, 212, 255, 0.2);
+            border-radius: 12px;
+            padding: 1rem;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(0, 212, 255, 0.5);
+        }
+
+        .glow-effect {
+            position: relative;
+        }
+
+        .glow-effect::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(45deg, #00d4ff, #7c3aed, #00d4ff);
+            border-radius: inherit;
+            z-index: -1;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            filter: blur(10px);
+        }
+
+        .glow-effect:hover::before {
+            opacity: 0.5;
+        }
     </style>
 </head>
 <body class="text-white font-inter min-h-screen">
@@ -224,7 +403,7 @@
             <div class="inline-block mb-4 px-4 py-1 rounded-full glass-panel border border-tech-blue/30 text-tech-blue text-sm font-semibold tracking-wider animate-pulse">
                 TEKNOFEST YARIŞMASI 2026
             </div>
-            <h1 class="font-orbitron text-5xl md:text-7xl font-black mb-6 leading-tight hero-title">
+            <h1 class="font-orbitron text-5xl md:text-7xl font-black mb-6 leading-tight hero-title animate-float">
                 Batu & Eymen
             </h1>
             <p class="text-xl text-gray-400 max-w-2xl mx-auto mb-12 leading-relaxed">
@@ -235,7 +414,7 @@
             
             <!-- Interactive Tabs -->
             <div class="flex flex-wrap justify-center gap-4 mb-16">
-                <button onclick="showSection('team')" id="tab-team" class="tab-btn px-8 py-4 rounded-xl glass-panel hover:border-tech-blue transition-all duration-300 flex items-center gap-3 group">
+                <button onclick="showSection('team')" id="tab-team" class="tab-btn px-8 py-4 rounded-xl glass-panel hover:border-tech-blue transition-all duration-300 flex items-center gap-3 group glow-effect">
                     <i class="fas fa-users text-2xl group-hover:text-tech-blue transition-colors"></i>
                     <div class="text-left">
                         <div class="font-bold">Proje Ekibi</div>
@@ -243,7 +422,7 @@
                     </div>
                 </button>
                 
-                <button onclick="showSection('scratch')" id="tab-scratch" class="tab-btn px-8 py-4 rounded-xl glass-panel hover:border-orange-400 transition-all duration-300 flex items-center gap-3 group">
+                <button onclick="showSection('scratch')" id="tab-scratch" class="tab-btn px-8 py-4 rounded-xl glass-panel hover:border-orange-400 transition-all duration-300 flex items-center gap-3 group glow-effect">
                     <i class="fas fa-gamepad text-2xl text-orange-400 group-hover:scale-110 transition-transform"></i>
                     <div class="text-left">
                         <div class="font-bold">Scratch Oyunu</div>
@@ -251,7 +430,7 @@
                     </div>
                 </button>
                 
-                <button onclick="showSection('arcgis')" id="tab-arcgis" class="tab-btn px-8 py-4 rounded-xl glass-panel hover:border-blue-400 transition-all duration-300 flex items-center gap-3 group">
+                <button onclick="showSection('arcgis')" id="tab-arcgis" class="tab-btn px-8 py-4 rounded-xl glass-panel hover:border-blue-400 transition-all duration-300 flex items-center gap-3 group glow-effect">
                     <i class="fas fa-map-marked-alt text-2xl text-blue-400 group-hover:scale-110 transition-transform"></i>
                     <div class="text-left">
                         <div class="font-bold">ArcGIS StoryMap</div>
@@ -259,7 +438,7 @@
                     </div>
                 </button>
                 
-                <button onclick="showSection('arduino')" id="tab-arduino" class="tab-btn px-8 py-4 rounded-xl glass-panel hover:border-green-400 transition-all duration-300 flex items-center gap-3 group">
+                <button onclick="showSection('arduino')" id="tab-arduino" class="tab-btn px-8 py-4 rounded-xl glass-panel hover:border-green-400 transition-all duration-300 flex items-center gap-3 group glow-effect">
                     <i class="fas fa-microchip text-2xl text-green-400 group-hover:scale-110 transition-transform"></i>
                     <div class="text-left">
                         <div class="font-bold">Arduino & Processing</div>
@@ -284,7 +463,7 @@
             
             <div class="grid md:grid-cols-3 gap-6">
                 <!-- Danışman -->
-                <div class="team-member glass-panel rounded-2xl p-6 text-center group hover:border-yellow-400 transition-all duration-300 border-2 border-yellow-400/30">
+                <div class="team-member glass-panel rounded-2xl p-6 text-center group hover:border-yellow-400 transition-all duration-300 border-2 border-yellow-400/30" onclick="openModal('danisman')">
                     <div class="w-24 h-24 mx-auto mb-4 rounded-full bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center text-3xl font-bold shadow-lg group-hover:scale-110 transition-transform">
                         <i class="fas fa-chalkboard-teacher"></i>
                     </div>
@@ -294,10 +473,13 @@
                     <div class="mt-4 flex justify-center gap-3">
                         <span class="px-3 py-1 rounded-full bg-yellow-500/20 text-yellow-300 text-xs">Mentor</span>
                     </div>
+                    <div class="mt-3 text-xs text-gray-500">
+                        <i class="fas fa-hand-pointer mr-1"></i> Detaylar için tıklayın
+                    </div>
                 </div>
 
-                <!-- Batu - Güncellendi -->
-                <div class="team-member glass-panel rounded-2xl p-6 text-center group hover:border-tech-blue transition-all duration-300">
+                <!-- Batu -->
+                <div class="team-member glass-panel rounded-2xl p-6 text-center group hover:border-tech-blue transition-all duration-300" onclick="openModal('batu')">
                     <div class="w-24 h-24 mx-auto mb-4 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-3xl font-bold shadow-lg group-hover:scale-110 transition-transform">
                         B
                     </div>
@@ -305,24 +487,18 @@
                     <p class="text-tech-blue text-sm font-semibold mb-2">Proje Üyesi</p>
                     <p class="text-gray-400 text-sm mb-3">ArcGIS haritalama, Arduino iklim simülasyonu ve Processing görselleştirme</p>
                     
-                    <!-- Yeni eklenen görevler -->
-                    <div class="border-t border-white/10 pt-3 mt-3">
-                        <div class="role-badge bg-green-500/20 text-green-300">
-                            <i class="fas fa-volume-up text-xs"></i>
-                            <span>Oyun İçi SFX Yapımcısı</span>
-                        </div>
-                        <p class="text-xs text-gray-400 mt-2 px-2">Arduino simülasyonu ve oyun için ses efektleri tasarımı</p>
-                    </div>
-                    
                     <div class="mt-4 flex justify-center gap-2 flex-wrap">
                         <span class="px-3 py-1 rounded-full bg-blue-500/20 text-blue-300 text-xs">ArcGIS</span>
                         <span class="px-3 py-1 rounded-full bg-green-500/20 text-green-300 text-xs">Arduino</span>
                         <span class="px-3 py-1 rounded-full bg-purple-500/20 text-purple-300 text-xs">Processing</span>
                     </div>
+                    <div class="mt-3 text-xs text-gray-500">
+                        <i class="fas fa-hand-pointer mr-1"></i> Detaylar için tıklayın
+                    </div>
                 </div>
 
-                <!-- Eymen - Güncellendi -->
-                <div class="team-member glass-panel rounded-2xl p-6 text-center group hover:border-orange-400 transition-all duration-300">
+                <!-- Eymen -->
+                <div class="team-member glass-panel rounded-2xl p-6 text-center group hover:border-orange-400 transition-all duration-300" onclick="openModal('eymen')">
                     <div class="w-24 h-24 mx-auto mb-4 rounded-full bg-gradient-to-br from-orange-400 to-red-500 flex items-center justify-center text-3xl font-bold shadow-lg group-hover:scale-110 transition-transform">
                         E
                     </div>
@@ -330,18 +506,12 @@
                     <p class="text-orange-400 text-sm font-semibold mb-2">Proje Üyesi</p>
                     <p class="text-gray-400 text-sm mb-3">Scratch oyun geliştirme, karakter tasarımı ve oyun mekanikleri</p>
                     
-                    <!-- Yeni eklenen görev -->
-                    <div class="border-t border-white/10 pt-3 mt-3">
-                        <div class="role-badge bg-pink-500/20 text-pink-300">
-                            <i class="fas fa-music text-xs"></i>
-                            <span>Oyun İçi Müzik Yapımcısı</span>
-                        </div>
-                        <p class="text-xs text-gray-400 mt-2 px-2">Oyun içi arka plan müzikleri ve ses efektleri (SFX) tasarımı</p>
-                    </div>
-                    
                     <div class="mt-4 flex justify-center gap-2 flex-wrap">
                         <span class="px-3 py-1 rounded-full bg-orange-500/20 text-orange-300 text-xs">Scratch</span>
                         <span class="px-3 py-1 rounded-full bg-red-500/20 text-red-300 text-xs">Oyun Tasarımı</span>
+                    </div>
+                    <div class="mt-3 text-xs text-gray-500">
+                        <i class="fas fa-hand-pointer mr-1"></i> Detaylar için tıklayın
                     </div>
                 </div>
             </div>
@@ -529,6 +699,26 @@
                 <div>
                     <h2 class="font-orbitron text-3xl font-bold">İklim Simülasyonu</h2>
                     <p class="text-gray-400 mt-1">Abdullah Batu Baddal tarafından geliştirilen Arduino ve Processing projesi</p>
+                </div>
+            </div>
+
+            <!-- Statistics Dashboard -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+                <div class="stat-card">
+                    <div class="text-2xl font-bold text-green-400 mb-1">2</div>
+                    <div class="text-xs text-gray-400">Senaryo Modu</div>
+                </div>
+                <div class="stat-card">
+                    <div class="text-2xl font-bold text-blue-400 mb-1">5</div>
+                    <div class="text-xs text-gray-400">Sensör/Bileşen</div>
+                </div>
+                <div class="stat-card">
+                    <div class="text-2xl font-bold text-purple-400 mb-1">9600</div>
+                    <div class="text-xs text-gray-400">Baud Rate</div>
+                </div>
+                <div class="stat-card">
+                    <div class="text-2xl font-bold text-yellow-400 mb-1">Real-time</div>
+                    <div class="text-xs text-gray-400">Veri İletimi</div>
                 </div>
             </div>
 
@@ -730,197 +920,66 @@
                 </div>
             </div>
 
-            <!-- Code Tabs -->
+            <!-- Code Section - Simplified -->
             <div class="glass-panel rounded-2xl p-6">
-                <div class="flex gap-4 mb-4 border-b border-white/10 pb-4">
-                    <button onclick="switchCode('arduino')" id="code-arduino-btn" class="px-4 py-2 rounded-lg bg-green-600 text-white text-sm font-semibold transition-all">Arduino Kodu</button>
-                    <button onclick="switchCode('processing')" id="code-processing-btn" class="px-4 py-2 rounded-lg hover:bg-white/10 text-gray-300 text-sm font-semibold transition-all">Processing Kodu</button>
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="font-bold text-lg flex items-center gap-2">
+                        <i class="fas fa-code text-green-400"></i>
+                        Arduino Kaynak Kodu
+                    </h3>
+                    <a href="/mnt/kimi/upload/Processing%20kodu.txt" download class="px-4 py-2 rounded-lg bg-green-600 hover:bg-green-700 text-white text-sm font-semibold transition-colors flex items-center gap-2">
+                        <i class="fas fa-download"></i>
+                        Kodu İndir
+                    </a>
                 </div>
-
-                <!-- Arduino Code -->
-                <div id="code-arduino" class="code-block p-4 overflow-x-auto">
-                    <pre class="text-sm leading-relaxed"><code><span class="syntax-comment">// ==========================================</span>
-<span class="syntax-comment">// ARDUINO KODU - İklim Simülasyonu</span>
-<span class="syntax-comment">// Abdullah Batu Baddal - Teknofest 2026</span>
-<span class="syntax-comment">// ==========================================</span>
-
-<span class="syntax-keyword">#define</span> <span class="syntax-function">POTANSIYOMETRE</span> A0    <span class="syntax-comment">// Potansiyometre pin</span>
-<span class="syntax-keyword">#define</span> <span class="syntax-function">SU_SENSOR</span> A1         <span class="syntax-comment">// Su sensörü pin</span>
-<span class="syntax-keyword">#define</span> <span class="syntax-function">BUTON_KOTU</span> 2         <span class="syntax-comment">// İhmal senaryosu butonu</span>
-<span class="syntax-keyword">#define</span> <span class="syntax-function">BUTON_IYI</span> 3          <span class="syntax-comment">// Kurtarma senaryosu butonu</span>
-<span class="syntax-keyword">#define</span> <span class="syntax-function">BUZZER</span> 4             <span class="syntax-comment">// Buzzer pin</span>
-
-<span class="syntax-keyword">int</span> aktifMod = 0;            <span class="syntax-comment">// 0: Bekleme, 1: Kötü, 2: İyi</span>
-
-<span class="syntax-keyword">void</span> <span class="syntax-function">setup</span>() {
-  <span class="syntax-comment">// Seri haberleşme başlat</span>
-  <span class="syntax-function">Serial</span>.<span class="syntax-function">begin</span>(9600);
-  
-  <span class="syntax-comment">// Pin modları</span>
-  <span class="syntax-function">pinMode</span>(BUTON_KOTU, INPUT_PULLUP);
-  <span class="syntax-function">pinMode</span>(BUTON_IYI, INPUT_PULLUP);
-  <span class="syntax-function">pinMode</span>(BUZZER, OUTPUT);
-  
-  <span class="syntax-comment">// Başlangıç melodisi</span>
-  <span class="syntax-function">tone</span>(BUZZER, 523, 200); <span class="syntax-function">delay</span>(200);
-  <span class="syntax-function">tone</span>(BUZZER, 659, 200); <span class="syntax-function">delay</span>(200);
-  <span class="syntax-function">tone</span>(BUZZER, 784, 200);
-  
-  <span class="syntax-function">Serial</span>.<span class="syntax-function">println</span>(<span class="syntax-string">"Sistem hazir!"</span>);
-}
-
-<span class="syntax-keyword">void</span> <span class="syntax-function">loop</span>() {
-  <span class="syntax-comment">// Butonları oku (ters mantık - pull-up)</span>
-  <span class="syntax-keyword">bool</span> btnKotu = !<span class="syntax-function">digitalRead</span>(BUTON_KOTU);
-  <span class="syntax-keyword">bool</span> btnIyi = !<span class="syntax-function">digitalRead</span>(BUTON_IYI);
-  
-  <span class="syntax-comment">// Mod değiştirme</span>
-  <span class="syntax-keyword">if</span> (btnKotu && aktifMod != 1) {
-    aktifMod = 1;
-    <span class="syntax-function">tone</span>(BUZZER, 300, 300); <span class="syntax-comment">// Düşük ses - kötü senaryo</span>
-    <span class="syntax-function">delay</span>(200);
-  }
-  <span class="syntax-keyword">else if</span> (btnIyi && aktifMod != 2) {
-    aktifMod = 2;
-    <span class="syntax-function">tone</span>(BUZZER, 1000, 200); <span class="syntax-comment">// Yüksek ses - iyi senaryo</span>
-    <span class="syntax-function">delay</span>(200);
-  }
-  
-  <span class="syntax-comment">// Sensörleri oku</span>
-  <span class="syntax-keyword">int</span> potDeger = <span class="syntax-function">analogRead</span>(POTANSIYOMETRE);
-  <span class="syntax-keyword">int</span> suDeger = <span class="syntax-function">analogRead</span>(SU_SENSOR);
-  
-  <span class="syntax-comment">// Processing'e veri gönder (format: MOD:1|POT:512|SU:300)</span>
-  <span class="syntax-function">Serial</span>.<span class="syntax-function">print</span>(<span class="syntax-string">"MOD:"</span>);
-  <span class="syntax-function">Serial</span>.<span class="syntax-function">print</span>(aktifMod);
-  <span class="syntax-function">Serial</span>.<span class="syntax-function">print</span>(<span class="syntax-string">"|POT:"</span>);
-  <span class="syntax-function">Serial</span>.<span class="syntax-function">print</span>(potDeger);
-  <span class="syntax-function">Serial</span>.<span class="syntax-function">print</span>(<span class="syntax-string">"|SU:"</span>);
-  <span class="syntax-function">Serial</span>.<span class="syntax-function">println</span>(suDeger);
-  
-  <span class="syntax-comment">// Buzzer feedback (sadece aktif modda)</span>
-  <span class="syntax-keyword">if</span> (aktifMod == 1) {
-    <span class="syntax-comment">// Potansiyometre değişimine göre ses</span>
-    <span class="syntax-keyword">int</span> frekans = <span class="syntax-function">map</span>(potDeger, 0, 1023, 200, 400);
-    <span class="syntax-function">tone</span>(BUZZER, frekans, 50);
-  } 
-  <span class="syntax-keyword">else if</span> (aktifMod == 2) {
-    <span class="syntax-comment">// Su seviyesine göre ses</span>
-    <span class="syntax-keyword">int</span> frekans = <span class="syntax-function">map</span>(suDeger, 0, 1023, 400, 1500);
-    <span class="syntax-function">tone</span>(BUZZER, frekans, 50);
-  }
-  
-  <span class="syntax-function">delay</span>(50); <span class="syntax-comment">// 50ms bekle</span>
-}</code></pre>
-                </div>
-
-                <!-- Processing Code - Yeni Tasarım -->
-                <div id="code-processing" class="code-block p-4 overflow-x-auto hidden">
-                    <div class="text-center py-8">
-                        <i class="fas fa-code text-6xl text-purple-400 mb-4"></i>
-                        <h3 class="font-bold text-xl mb-2">Processing Kodu</h3>
-                        <p class="text-gray-400 text-sm mb-6 max-w-md mx-auto">
-                            Processing kodu metin dosyası olarak aşağıda görüntülenmektedir. 
-                            Bu kodu kullanmak için Processing IDE'sinde yeni bir sketch oluşturup 
-                            kodu kopyalayıp yapıştırmanız gerekmektedir.
-                        </p>
-                        
-                        <div class="mt-6 p-4 bg-purple-500/10 border border-purple-500/30 rounded-lg max-w-2xl mx-auto text-left overflow-x-auto">
-                            <h4 class="font-semibold text-purple-400 mb-2 text-sm">Processing Kodu:</h4>
-                            <pre class="text-xs text-gray-300 leading-relaxed"><code>import processing.serial.*;
-
-Serial myPort;
-String data = "";
-int mod = 0;
-int potDeger = 0;
-int suDeger = 0;
-
-void setup() {
-  size(800, 600);
-  println(Serial.list());
-  String portName = Serial.list()[0];
-  myPort = new Serial(this, portName, 9600);
-}
-
-void draw() {
-  background(20);
-  
-  if (myPort.available() > 0) {
-    data = myPort.readStringUntil('\n');
-  }
-  
-  if (data != null) {
-    String[] values = split(data, '|');
-    if (values.length == 3) {
-      mod = int(split(values[0], ':')[1]);
-      potDeger = int(split(values[1], ':')[1]);
-      suDeger = int(split(values[2], ':')[1]);
-    }
-  }
-  
-  // Simülasyon görselleştirmesi
-  fill(255);
-  textSize(24);
-  text("İklim Simülasyonu", 300, 40);
-  
-  textSize(16);
-  text("Mod: " + (mod == 0 ? "Bekleme" : mod == 1 ? "İhmal Edilen Dünya" : "Kurtarılan Dünya"), 50, 100);
-  text("Potansiyometre: " + potDeger, 50, 130);
-  text("Su Seviyesi: " + suDeger, 50, 160);
-  
-  // Görsel elemanlar
-  if (mod == 1) {
-    fill(255, 0, 0, map(potDeger, 0, 1023, 50, 200));
-    rect(200, 200, 400, 200);
-    fill(255);
-    text("Kirlilik Artıyor!", 350, 310);
-  } else if (mod == 2) {
-    fill(0, 255, 0, map(suDeger, 0, 1023, 50, 200));
-    ellipse(400, 300, map(suDeger, 0, 1023, 100, 300), map(suDeger, 0, 1023, 100, 300));
-    fill(255);
-    text("Doğa Canlanıyor!", 340, 310);
-  }
-}</code></pre>
-                        </div>
-                        
-                        <div class="mt-6 p-4 bg-yellow-500/10 border border-yellow-500/30 rounded-lg max-w-lg mx-auto text-left">
-                            <h4 class="font-semibold text-yellow-400 mb-2 text-sm"><i class="fas fa-exclamation-triangle mr-2"></i>Kullanım Talimatları:</h4>
-                            <ol class="text-xs text-gray-300 space-y-1 list-decimal list-inside">
-                                <li>Processing IDE'sini açın (processing.org'dan indirilebilir)</li>
-                                <li>Yeni bir sketch oluşturun (Dosya → Yeni)</li>
-                                <li>Yukarıdaki kodu kopyalayın</li>
-                                <li>Processing IDE'sindeki kod alanına yapıştırın</li>
-                                <li>Arduino'yu USB ile bağlayın</li>
-                                <li>Çalıştır butonuna basın (veya Ctrl+R)</li>
-                            </ol>
-                        </div>
+                
+                <div class="bg-gray-900 rounded-xl p-6 text-center">
+                    <i class="fas fa-file-code text-5xl text-green-400 mb-4"></i>
+                    <h4 class="font-bold text-lg mb-2">Processing Kodu</h4>
+                    <p class="text-gray-400 text-sm mb-4 max-w-md mx-auto">
+                        İklim simülasyonunun görselleştirme kodunu indirmek için yukarıdaki butonu kullanabilirsiniz. 
+                        Kodu Processing IDE'sinde açarak Arduino ile birlikte çalıştırabilirsiniz.
+                    </p>
+                    <div class="flex justify-center gap-4 text-xs text-gray-500">
+                        <span class="flex items-center gap-1">
+                            <i class="fas fa-check text-green-400"></i>
+                            Processing 3.0+
+                        </span>
+                        <span class="flex items-center gap-1">
+                            <i class="fas fa-check text-green-400"></i>
+                            Arduino Uno
+                        </span>
+                        <span class="flex items-center gap-1">
+                            <i class="fas fa-check text-green-400"></i>
+                            Serial Bağlantı
+                        </span>
                     </div>
                 </div>
             </div>
 
             <!-- System Flow -->
             <div class="mt-8 grid md:grid-cols-5 gap-4">
-                <div class="glass-panel rounded-xl p-4 text-center border-t-2 border-blue-400">
-                    <i class="fas fa-water text-3xl text-blue-400 mb-2"></i>
+                <div class="glass-panel rounded-xl p-4 text-center border-t-2 border-blue-400 hover:scale-105 transition-transform">
+                    <i class="fas fa-water text-3xl text-blue-400 mb-2 animate-bounce"></i>
                     <div class="font-bold text-sm">Su Sensörü</div>
                     <div class="text-xs text-gray-400 mt-1">A1 Analog</div>
                 </div>
-                <div class="glass-panel rounded-xl p-4 text-center border-t-2 border-purple-400">
-                    <i class="fas fa-sliders-h text-3xl text-purple-400 mb-2"></i>
+                <div class="glass-panel rounded-xl p-4 text-center border-t-2 border-purple-400 hover:scale-105 transition-transform">
+                    <i class="fas fa-sliders-h text-3xl text-purple-400 mb-2 animate-pulse"></i>
                     <div class="font-bold text-sm">Potansiyometre</div>
                     <div class="text-xs text-gray-400 mt-1">A0 Analog</div>
                 </div>
-                <div class="glass-panel rounded-xl p-4 text-center border-t-2 border-green-400">
+                <div class="glass-panel rounded-xl p-4 text-center border-t-2 border-green-400 hover:scale-105 transition-transform">
                     <i class="fas fa-microchip text-3xl text-green-400 mb-2"></i>
                     <div class="font-bold text-sm">Arduino</div>
                     <div class="text-xs text-gray-400 mt-1">Veri İşleme</div>
                 </div>
-                <div class="glass-panel rounded-xl p-4 text-center border-t-2 border-yellow-400">
+                <div class="glass-panel rounded-xl p-4 text-center border-t-2 border-yellow-400 hover:scale-105 transition-transform">
                     <i class="fas fa-usb text-3xl text-yellow-400 mb-2"></i>
                     <div class="font-bold text-sm">Serial</div>
                     <div class="text-xs text-gray-400 mt-1">9600 Baud</div>
                 </div>
-                <div class="glass-panel rounded-xl p-4 text-center border-t-2 border-pink-400">
+                <div class="glass-panel rounded-xl p-4 text-center border-t-2 border-pink-400 hover:scale-105 transition-transform">
                     <i class="fas fa-desktop text-3xl text-pink-400 mb-2"></i>
                     <div class="font-bold text-sm">Processing</div>
                     <div class="text-xs text-gray-400 mt-1">Simülasyon</div>
@@ -952,7 +1011,140 @@ void draw() {
         </div>
     </footer>
 
+    <!-- Team Member Modal -->
+    <div id="teamModal" class="modal-overlay" onclick="closeModal(event)">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <button class="modal-close" onclick="closeModal()">
+                <i class="fas fa-times"></i>
+            </button>
+            
+            <div id="modalContent">
+                <!-- Content will be injected by JavaScript -->
+            </div>
+        </div>
+    </div>
+
     <script>
+        // Team member data
+        const teamData = {
+            danisman: {
+                name: "Hayriye Uymazsoy",
+                role: "Danışman Öğretmen",
+                color: "yellow",
+                icon: "fa-chalkboard-teacher",
+                description: "Proje danışmanlığı ve yönlendirme",
+                details: [
+                    "Proje fikrinin geliştirilmesi ve şekillendirilmesi",
+                    "Teknik danışmanlık ve mentorluk",
+                    "Ekip koordinasyonu ve yönetimi",
+                    "Teknofest başvuru süreçlerinin takibi",
+                    "Proje raporlaması ve dokümantasyon"
+                ],
+                skills: ["Proje Yönetimi", "Mentorluk", "Eğitim", "Koordinasyon"]
+            },
+            batu: {
+                name: "Abdullah Batu Baddal",
+                role: "Proje Üyesi",
+                color: "blue",
+                icon: "fa-microchip",
+                description: "ArcGIS haritalama, Arduino iklim simülasyonu ve Processing görselleştirme",
+                details: [
+                    "ArcGIS StoryMap ile Göller Yöresi coğrafi keşif projesi",
+                    "Arduino Uno R3 ile iklim değişikliği simülasyonu",
+                    "Processing ile gerçek zamanlı veri görselleştirme",
+                    "Su seviye sensörü ve potansiyometre entegrasyonu",
+                    "Oyun içi ses efektleri (SFX) tasarımı ve üretimi",
+                    "Devre tasarımı ve prototipleme"
+                ],
+                skills: ["ArcGIS", "Arduino", "Processing", "Elektronik", "Ses Tasarımı", "Haritalama"]
+            },
+            eymen: {
+                name: "Ahmet Eymen Alkaptan",
+                role: "Proje Üyesi",
+                color: "orange",
+                icon: "fa-gamepad",
+                description: "Scratch oyun geliştirme, karakter tasarımı ve oyun mekanikleri",
+                details: [
+                    "MIT Scratch platformunda iklim değişikliği farkındalık oyunu",
+                    "Karakter tasarımı ve animasyon",
+                    "Oyun mekanikleri ve seviye tasarımı",
+                    "Eğitici içerik oluşturma",
+                    "Oyun içi arka plan müzikleri ve ses efektleri (SFX) tasarımı",
+                    "Kullanıcı deneyimi optimizasyonu"
+                ],
+                skills: ["Scratch", "Oyun Tasarımı", "Müzik", "Animasyon", "UX Tasarımı"]
+            }
+        };
+
+        // Modal functions
+        function openModal(memberId) {
+            const member = teamData[memberId];
+            const modal = document.getElementById('teamModal');
+            const content = document.getElementById('modalContent');
+            
+            const colorClasses = {
+                yellow: 'text-yellow-400 border-yellow-400',
+                blue: 'text-blue-400 border-blue-400',
+                orange: 'text-orange-400 border-orange-400'
+            };
+            
+            const bgClasses = {
+                yellow: 'bg-yellow-500/20 text-yellow-300',
+                blue: 'bg-blue-500/20 text-blue-300',
+                orange: 'bg-orange-500/20 text-orange-300'
+            };
+            
+            content.innerHTML = `
+                <div class="text-center mb-6">
+                    <div class="w-20 h-20 mx-auto mb-4 rounded-full bg-gradient-to-br from-${member.color}-400 to-${member.color === 'yellow' ? 'orange' : member.color === 'blue' ? 'blue-600' : 'red'}-500 flex items-center justify-center text-3xl font-bold shadow-lg">
+                        <i class="fas ${member.icon} text-white"></i>
+                    </div>
+                    <h3 class="font-orbitron text-2xl font-bold ${colorClasses[member.color].split(' ')[0]} mb-1">${member.name}</h3>
+                    <p class="${colorClasses[member.color].split(' ')[0]} font-semibold">${member.role}</p>
+                </div>
+                
+                <div class="mb-6">
+                    <h4 class="font-bold text-lg mb-3 flex items-center gap-2">
+                        <i class="fas fa-tasks ${colorClasses[member.color].split(' ')[0]}"></i>
+                        Görev ve Sorumluluklar
+                    </h4>
+                    <ul class="space-y-2">
+                        ${member.details.map(detail => `
+                            <li class="flex items-start gap-2 text-sm text-gray-300">
+                                <i class="fas fa-check-circle ${colorClasses[member.color].split(' ')[0]} mt-1 flex-shrink-0"></i>
+                                <span>${detail}</span>
+                            </li>
+                        `).join('')}
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 class="font-bold text-lg mb-3 flex items-center gap-2">
+                        <i class="fas fa-tools ${colorClasses[member.color].split(' ')[0]}"></i>
+                        Yetkinlikler
+                    </h4>
+                    <div class="flex flex-wrap gap-2">
+                        ${member.skills.map(skill => `
+                            <span class="px-3 py-1 rounded-full ${bgClasses[member.color]} text-xs font-semibold">
+                                ${skill}
+                            </span>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+            
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeModal(event) {
+            if (!event || event.target.id === 'teamModal' || event.target.closest('.modal-close')) {
+                const modal = document.getElementById('teamModal');
+                modal.classList.remove('active');
+                document.body.style.overflow = '';
+            }
+        }
+
         // Particle Animation
         function createParticles() {
             const container = document.getElementById('particles');
@@ -987,30 +1179,6 @@ void draw() {
             showSection(sectionId);
         }
 
-        // Code Switcher
-        function switchCode(type) {
-            const arduinoCode = document.getElementById('code-arduino');
-            const processingCode = document.getElementById('code-processing');
-            const arduinoBtn = document.getElementById('code-arduino-btn');
-            const processingBtn = document.getElementById('code-processing-btn');
-            
-            if (type === 'arduino') {
-                arduinoCode.classList.remove('hidden');
-                processingCode.classList.add('hidden');
-                arduinoBtn.classList.add('bg-green-600', 'text-white');
-                arduinoBtn.classList.remove('hover:bg-white/10', 'text-gray-300');
-                processingBtn.classList.remove('bg-green-600', 'text-white');
-                processingBtn.classList.add('hover:bg-white/10', 'text-gray-300');
-            } else {
-                arduinoCode.classList.add('hidden');
-                processingCode.classList.remove('hidden');
-                processingBtn.classList.add('bg-green-600', 'text-white');
-                processingBtn.classList.remove('hover:bg-white/10', 'text-gray-300');
-                arduinoBtn.classList.remove('bg-green-600', 'text-white');
-                arduinoBtn.classList.add('hover:bg-white/10', 'text-gray-300');
-            }
-        }
-
         // ArcGIS Yenileme Fonksiyonu
         function reloadArcGIS() {
             const iframe = document.querySelector('.arcgis-embed iframe');
@@ -1041,6 +1209,13 @@ void draw() {
                 nav.classList.add('bg-gray-900/90');
             } else {
                 nav.classList.remove('bg-gray-900/90');
+            }
+        });
+
+        // Keyboard navigation for modal
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closeModal();
             }
         });
     </script>
