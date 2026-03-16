@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Teknofest 2026 - Batu & Eymen Projesi</title>
+    <title>Teknofest 2026 - İklim Değişikliği Projesi</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
@@ -53,18 +53,18 @@
             background: linear-gradient(135deg, #0a0a0f 0%, #1a1a2e 50%, #0f0f1e 100%);
             overflow-x: hidden;
         }
-        
+
         .glass-panel {
             background: rgba(255, 255, 255, 0.03);
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.1);
             box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
         }
-        
+
         .neon-text {
             text-shadow: 0 0 10px rgba(0, 212, 255, 0.5), 0 0 20px rgba(0, 212, 255, 0.3);
         }
-        
+
         .grid-bg {
             background-image: 
                 linear-gradient(rgba(0, 212, 255, 0.1) 1px, transparent 1px),
@@ -78,7 +78,7 @@
             pointer-events: none;
             z-index: -1;
         }
-        
+
         .particle {
             position: absolute;
             width: 4px;
@@ -88,81 +88,52 @@
             animation: particle-float 10s infinite linear;
             opacity: 0.6;
         }
-        
+
         @keyframes particle-float {
             0% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
             10% { opacity: 1; }
             90% { opacity: 1; }
             100% { transform: translateY(-100vh) rotate(720deg); opacity: 0; }
         }
-        
+
         .tab-active {
             background: linear-gradient(135deg, #00d4ff, #7c3aed);
             color: white;
             transform: scale(1.05);
         }
-        
+
         .project-card {
             transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         }
-        
+
         .project-card:hover {
             transform: translateY(-10px) scale(1.02);
             box-shadow: 0 20px 40px rgba(0, 212, 255, 0.2);
         }
-        
+
         .code-block {
             background: #0d1117;
             border-radius: 12px;
             overflow: hidden;
             font-family: 'Courier New', monospace;
         }
-        
+
         .syntax-keyword { color: #ff7b72; }
         .syntax-string { color: #a5d6ff; }
         .syntax-comment { color: #8b949e; }
         .syntax-function { color: #d2a8ff; }
         .syntax-number { color: #79c0ff; }
-        
+
         .circuit-svg path, .circuit-svg line, .circuit-svg rect, .circuit-svg circle {
             stroke-dasharray: 1000;
             stroke-dashoffset: 1000;
             animation: draw 3s ease-in-out forwards;
         }
-        
+
         @keyframes draw {
             to { stroke-dashoffset: 0; }
         }
-        
-        .team-member {
-            position: relative;
-            overflow: hidden;
-            cursor: pointer;
-        }
-        
-        .team-member::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: linear-gradient(45deg, transparent, rgba(0, 212, 255, 0.1), transparent);
-            transform: rotate(45deg);
-            transition: all 0.5s;
-            opacity: 0;
-        }
-        
-        .team-member:hover::before {
-            animation: shine 0.5s ease-in-out;
-            opacity: 1;
-        }
-        
-        @keyframes shine {
-            0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
-            100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
-        }
-        
+
         .scratch-embed {
             position: relative;
             width: 100%;
@@ -171,7 +142,7 @@
             overflow: hidden;
             border-radius: 12px;
         }
-        
+
         .scratch-embed iframe {
             position: absolute;
             top: 0;
@@ -180,7 +151,7 @@
             height: 100%;
             border: none;
         }
-        
+
         .arcgis-embed {
             position: relative;
             width: 100%;
@@ -189,23 +160,23 @@
             overflow: hidden;
             border: 2px solid rgba(59, 130, 246, 0.3);
         }
-        
+
         .arcgis-embed iframe {
             width: 100%;
             height: 100%;
             border: none;
             border-radius: 12px;
         }
-        
+
         .water-level {
             animation: wave 3s ease-in-out infinite;
         }
-        
+
         @keyframes wave {
             0%, 100% { transform: translateY(0); }
             50% { transform: translateY(-5px); }
         }
-        
+
         .hero-title {
             background: linear-gradient(135deg, #00d4ff 0%, #7c3aed 100%);
             -webkit-background-clip: text;
@@ -224,131 +195,6 @@
 
         @keyframes spin {
             to { transform: rotate(360deg); }
-        }
-
-        .role-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            padding: 0.25rem 0.75rem;
-            border-radius: 9999px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            margin-top: 0.5rem;
-        }
-
-        /* Modal Styles */
-        .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.8);
-            backdrop-filter: blur(10px);
-            z-index: 1000;
-            display: none;
-            justify-content: center;
-            align-items: center;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-
-        .modal-overlay.active {
-            display: flex;
-            opacity: 1;
-        }
-
-        .modal-content {
-            background: linear-gradient(135deg, #1a1a2e 0%, #0f0f1e 100%);
-            border: 1px solid rgba(0, 212, 255, 0.3);
-            border-radius: 20px;
-            padding: 2rem;
-            max-width: 600px;
-            width: 90%;
-            max-height: 80vh;
-            overflow-y: auto;
-            transform: scale(0.9);
-            transition: transform 0.3s ease;
-            position: relative;
-        }
-
-        .modal-overlay.active .modal-content {
-            transform: scale(1);
-        }
-
-        .modal-close {
-            position: absolute;
-            top: 1rem;
-            right: 1rem;
-            background: rgba(255, 255, 255, 0.1);
-            border: none;
-            color: white;
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            cursor: pointer;
-            font-size: 1.2rem;
-            transition: all 0.3s ease;
-        }
-
-        .modal-close:hover {
-            background: rgba(255, 0, 0, 0.3);
-            transform: rotate(90deg);
-        }
-
-        /* Chart Styles */
-        .chart-container {
-            background: rgba(255, 255, 255, 0.02);
-            border-radius: 16px;
-            padding: 1.5rem;
-            border: 1px solid rgba(255, 255, 255, 0.05);
-        }
-
-        .progress-bar {
-            height: 8px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 4px;
-            overflow: hidden;
-            position: relative;
-        }
-
-        .progress-fill {
-            height: 100%;
-            border-radius: 4px;
-            transition: width 1s ease;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .progress-fill::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
-            animation: shimmer 2s infinite;
-        }
-
-        @keyframes shimmer {
-            0% { transform: translateX(-100%); }
-            100% { transform: translateX(100%); }
-        }
-
-        .stat-card {
-            background: linear-gradient(135deg, rgba(0, 212, 255, 0.1), rgba(124, 58, 237, 0.1));
-            border: 1px solid rgba(0, 212, 255, 0.2);
-            border-radius: 12px;
-            padding: 1rem;
-            text-align: center;
-            transition: all 0.3s ease;
-        }
-
-        .stat-card:hover {
-            transform: translateY(-5px);
-            border-color: rgba(0, 212, 255, 0.5);
         }
 
         .glow-effect {
@@ -373,7 +219,46 @@
         .glow-effect:hover::before {
             opacity: 0.5;
         }
+
+        .stat-card {
+            background: linear-gradient(135deg, rgba(0, 212, 255, 0.1), rgba(124, 58, 237, 0.1));
+            border: 1px solid rgba(0, 212, 255, 0.2);
+            border-radius: 12px;
+            padding: 1rem;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(0, 212, 255, 0.5);
+        }
+
+        .intro-card {
+            background: linear-gradient(135deg, rgba(0, 212, 255, 0.05), rgba(124, 58, 237, 0.05));
+            border: 1px solid rgba(0, 212, 255, 0.2);
+            border-radius: 20px;
+            padding: 2rem;
+            transition: all 0.3s ease;
+        }
+
+        .intro-card:hover {
+            border-color: rgba(0, 212, 255, 0.5);
+            transform: translateY(-5px);
+        }
+
+        .feature-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
     </style>
+<base target="_blank">
 </head>
 <body class="text-white font-inter min-h-screen">
 
@@ -389,7 +274,7 @@
                 <span class="font-orbitron font-bold text-xl tracking-wider">TEKNOFEST<span class="text-tech-blue">2026</span></span>
             </div>
             <div class="hidden md:flex space-x-8">
-                <button onclick="scrollToSection('team')" class="hover:text-tech-blue transition-colors">Ekip</button>
+                <button onclick="scrollToSection('intro')" class="hover:text-tech-blue transition-colors">Proje</button>
                 <button onclick="scrollToSection('scratch')" class="hover:text-tech-blue transition-colors">Scratch</button>
                 <button onclick="scrollToSection('arcgis')" class="hover:text-tech-blue transition-colors">ArcGIS</button>
                 <button onclick="scrollToSection('arduino')" class="hover:text-tech-blue transition-colors">Arduino</button>
@@ -397,52 +282,78 @@
         </div>
     </nav>
 
-    <!-- Hero Section -->
+    <!-- Hero Section - Project Introduction -->
     <section class="relative pt-32 pb-20 px-6 overflow-hidden">
         <div class="container mx-auto text-center relative z-10">
             <div class="inline-block mb-4 px-4 py-1 rounded-full glass-panel border border-tech-blue/30 text-tech-blue text-sm font-semibold tracking-wider animate-pulse">
                 TEKNOFEST YARIŞMASI 2026
             </div>
             <h1 class="font-orbitron text-5xl md:text-7xl font-black mb-6 leading-tight hero-title animate-float">
-                Batu & Eymen
+                İklim Değişikliği<br>Farkındalık Projesi
             </h1>
-            <p class="text-xl text-gray-400 max-w-2xl mx-auto mb-12 leading-relaxed">
-                Hayriye Uymazsoy danışmanlığında Teknofest 2026 için hazırladığımız projemizde 
-                Eymen Scratch oyun geliştirme, Batu ise ArcGIS haritalama ve Arduino iklim simülasyonu 
-                sistemleri üzerine çalışmalar yapıyor.
+            <p class="text-xl text-gray-400 max-w-3xl mx-auto mb-12 leading-relaxed">
+                Teknofest 2026 için hazırlanan bu projede, iklim değişikliği konusunda farkındalık oluşturmak amacıyla 
+                interaktif oyunlar, coğrafi haritalama sistemleri ve Arduino tabanlı simülasyonlar geliştirilmiştir.
             </p>
-            
+
+            <!-- Project Introduction Cards -->
+            <div class="grid md:grid-cols-3 gap-6 mb-16 max-w-5xl mx-auto">
+                <div class="intro-card">
+                    <div class="feature-icon bg-gradient-to-br from-orange-400 to-red-500 mx-auto">
+                        <i class="fas fa-gamepad text-white"></i>
+                    </div>
+                    <h3 class="font-bold text-lg mb-2">Eğitici Oyun</h3>
+                    <p class="text-gray-400 text-sm">Scratch platformunda geliştirilen interaktif oyun ile iklim değişikliği konusunda bilinç oluşturma</p>
+                </div>
+
+                <div class="intro-card">
+                    <div class="feature-icon bg-gradient-to-br from-blue-400 to-cyan-500 mx-auto">
+                        <i class="fas fa-map-marked-alt text-white"></i>
+                    </div>
+                    <h3 class="font-bold text-lg mb-2">Coğrafi Keşif</h3>
+                    <p class="text-gray-400 text-sm">ArcGIS StoryMap ile Göller Yöresi'nin coğrafi ve kültürel özelliklerinin interaktif sunumu</p>
+                </div>
+
+                <div class="intro-card">
+                    <div class="feature-icon bg-gradient-to-br from-green-400 to-emerald-600 mx-auto">
+                        <i class="fas fa-microchip text-white"></i>
+                    </div>
+                    <h3 class="font-bold text-lg mb-2">Simülasyon Sistemi</h3>
+                    <p class="text-gray-400 text-sm">Arduino ve Processing ile gerçek zamanlı iklim değişikliği simülasyonu ve veri görselleştirme</p>
+                </div>
+            </div>
+
             <!-- Interactive Tabs -->
             <div class="flex flex-wrap justify-center gap-4 mb-16">
-                <button onclick="showSection('team')" id="tab-team" class="tab-btn px-8 py-4 rounded-xl glass-panel hover:border-tech-blue transition-all duration-300 flex items-center gap-3 group glow-effect">
-                    <i class="fas fa-users text-2xl group-hover:text-tech-blue transition-colors"></i>
+                <button onclick="showSection('intro')" id="tab-intro" class="tab-btn px-8 py-4 rounded-xl glass-panel hover:border-tech-blue transition-all duration-300 flex items-center gap-3 group glow-effect tab-active">
+                    <i class="fas fa-home text-2xl group-hover:text-tech-blue transition-colors"></i>
                     <div class="text-left">
-                        <div class="font-bold">Proje Ekibi</div>
-                        <div class="text-xs text-gray-400">Danışman ve Üyeler</div>
+                        <div class="font-bold">Proje Tanıtım</div>
+                        <div class="text-xs text-gray-400">Genel Bilgiler</div>
                     </div>
                 </button>
-                
+
                 <button onclick="showSection('scratch')" id="tab-scratch" class="tab-btn px-8 py-4 rounded-xl glass-panel hover:border-orange-400 transition-all duration-300 flex items-center gap-3 group glow-effect">
                     <i class="fas fa-gamepad text-2xl text-orange-400 group-hover:scale-110 transition-transform"></i>
                     <div class="text-left">
                         <div class="font-bold">Scratch Oyunu</div>
-                        <div class="text-xs text-gray-400">Eymen'in Projesi</div>
+                        <div class="text-xs text-gray-400">Eğitici Oyun</div>
                     </div>
                 </button>
-                
+
                 <button onclick="showSection('arcgis')" id="tab-arcgis" class="tab-btn px-8 py-4 rounded-xl glass-panel hover:border-blue-400 transition-all duration-300 flex items-center gap-3 group glow-effect">
                     <i class="fas fa-map-marked-alt text-2xl text-blue-400 group-hover:scale-110 transition-transform"></i>
                     <div class="text-left">
                         <div class="font-bold">ArcGIS StoryMap</div>
-                        <div class="text-xs text-gray-400">Batu'nun Projesi</div>
+                        <div class="text-xs text-gray-400">Coğrafi Keşif</div>
                     </div>
                 </button>
-                
+
                 <button onclick="showSection('arduino')" id="tab-arduino" class="tab-btn px-8 py-4 rounded-xl glass-panel hover:border-green-400 transition-all duration-300 flex items-center gap-3 group glow-effect">
                     <i class="fas fa-microchip text-2xl text-green-400 group-hover:scale-110 transition-transform"></i>
                     <div class="text-left">
                         <div class="font-bold">Arduino & Processing</div>
-                        <div class="text-xs text-gray-400">Batu'nun Projesi</div>
+                        <div class="text-xs text-gray-400">İklim Simülasyonu</div>
                     </div>
                 </button>
             </div>
@@ -452,72 +363,92 @@
     <!-- Content Sections -->
     <main class="container mx-auto px-6 pb-20 space-y-8">
 
-        <!-- Team Section -->
-        <section id="team" class="section-content glass-panel rounded-3xl p-8 md:p-12 border border-white/10">
+        <!-- Introduction Section -->
+        <section id="intro" class="section-content glass-panel rounded-3xl p-8 md:p-12 border border-white/10">
             <div class="flex items-center gap-4 mb-8">
                 <div class="w-12 h-12 rounded-full bg-gradient-to-br from-tech-blue to-tech-purple flex items-center justify-center">
-                    <i class="fas fa-users text-xl"></i>
+                    <i class="fas fa-lightbulb text-xl"></i>
                 </div>
-                <h2 class="font-orbitron text-3xl font-bold">Proje Ekibi</h2>
+                <h2 class="font-orbitron text-3xl font-bold">Proje Hakkında</h2>
             </div>
-            
-            <div class="grid md:grid-cols-3 gap-6">
-                <!-- Danışman -->
-                <div class="team-member glass-panel rounded-2xl p-6 text-center group hover:border-yellow-400 transition-all duration-300 border-2 border-yellow-400/30" onclick="openModal('danisman')">
-                    <div class="w-24 h-24 mx-auto mb-4 rounded-full bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center text-3xl font-bold shadow-lg group-hover:scale-110 transition-transform">
-                        <i class="fas fa-chalkboard-teacher"></i>
+
+            <div class="grid md:grid-cols-2 gap-8">
+                <div class="space-y-6">
+                    <div class="glass-panel rounded-2xl p-6 border-l-4 border-tech-blue">
+                        <h3 class="font-bold text-lg mb-3 flex items-center gap-2">
+                            <i class="fas fa-bullseye text-tech-blue"></i>
+                            Proje Amacı
+                        </h3>
+                        <p class="text-gray-300 text-sm leading-relaxed">
+                            Bu proje, iklim değişikliği konusunda toplumsal farkındalık oluşturmak ve özellikle genç nesillere 
+                            çevre bilincini aşılamak amacıyla geliştirilmiştir. Teknolojiyi kullanarak interaktif ve eğitici 
+                            içerikler sunmayı hedeflemektedir.
+                        </p>
                     </div>
-                    <h3 class="font-bold text-lg mb-1">Hayriye Uymazsoy</h3>
-                    <p class="text-yellow-400 text-sm font-semibold mb-2">Danışman Öğretmen</p>
-                    <p class="text-gray-400 text-sm">Proje danışmanlığı ve yönlendirme</p>
-                    <div class="mt-4 flex justify-center gap-3">
-                        <span class="px-3 py-1 rounded-full bg-yellow-500/20 text-yellow-300 text-xs">Mentor</span>
-                    </div>
-                    <div class="mt-3 text-xs text-gray-500">
-                        <i class="fas fa-hand-pointer mr-1"></i> Detaylar için tıklayın
+
+                    <div class="glass-panel rounded-2xl p-6 border-l-4 border-purple-400">
+                        <h3 class="font-bold text-lg mb-3 flex items-center gap-2">
+                            <i class="fas fa-cogs text-purple-400"></i>
+                            Kullanılan Teknolojiler
+                        </h3>
+                        <ul class="space-y-2 text-sm text-gray-300">
+                            <li class="flex items-center gap-2">
+                                <i class="fas fa-check-circle text-orange-400"></i>
+                                <span>MIT Scratch - Oyun Geliştirme</span>
+                            </li>
+                            <li class="flex items-center gap-2">
+                                <i class="fas fa-check-circle text-blue-400"></i>
+                                <span>ArcGIS StoryMap - Coğrafi Haritalama</span>
+                            </li>
+                            <li class="flex items-center gap-2">
+                                <i class="fas fa-check-circle text-green-400"></i>
+                                <span>Arduino Uno - Sensör Entegrasyonu</span>
+                            </li>
+                            <li class="flex items-center gap-2">
+                                <i class="fas fa-check-circle text-pink-400"></i>
+                                <span>Processing - Veri Görselleştirme</span>
+                            </li>
+                        </ul>
                     </div>
                 </div>
 
-                <!-- Batu -->
-                <div class="team-member glass-panel rounded-2xl p-6 text-center group hover:border-tech-blue transition-all duration-300" onclick="openModal('batu')">
-                    <div class="w-24 h-24 mx-auto mb-4 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-3xl font-bold shadow-lg group-hover:scale-110 transition-transform">
-                        B
+                <div class="space-y-6">
+                    <div class="glass-panel rounded-2xl p-6 border-l-4 border-green-400">
+                        <h3 class="font-bold text-lg mb-3 flex items-center gap-2">
+                            <i class="fas fa-globe-americas text-green-400"></i>
+                            Çevresel Etki
+                        </h3>
+                        <p class="text-gray-300 text-sm leading-relaxed mb-4">
+                            Proje kapsamında geliştirilen uygulamalar, kullanıcıların iklim değişikliğinin etkilerini 
+                            deneyimlemelerini ve çevre dostu davranışlar geliştirmelerini teşvik etmektedir.
+                        </p>
+                        <div class="grid grid-cols-2 gap-3">
+                            <div class="text-center p-3 rounded-lg bg-white/5">
+                                <div class="text-2xl font-bold text-green-400">3</div>
+                                <div class="text-xs text-gray-400">Modül</div>
+                            </div>
+                            <div class="text-center p-3 rounded-lg bg-white/5">
+                                <div class="text-2xl font-bold text-blue-400">100%</div>
+                                <div class="text-xs text-gray-400">Eğitici</div>
+                            </div>
+                        </div>
                     </div>
-                    <h3 class="font-bold text-lg mb-1">Abdullah Batu Baddal</h3>
-                    <p class="text-tech-blue text-sm font-semibold mb-2">Proje Üyesi</p>
-                    <p class="text-gray-400 text-sm mb-3">ArcGIS haritalama, Arduino iklim simülasyonu ve Processing görselleştirme</p>
-                    
-                    <div class="mt-4 flex justify-center gap-2 flex-wrap">
-                        <span class="px-3 py-1 rounded-full bg-blue-500/20 text-blue-300 text-xs">ArcGIS</span>
-                        <span class="px-3 py-1 rounded-full bg-green-500/20 text-green-300 text-xs">Arduino</span>
-                        <span class="px-3 py-1 rounded-full bg-purple-500/20 text-purple-300 text-xs">Processing</span>
-                    </div>
-                    <div class="mt-3 text-xs text-gray-500">
-                        <i class="fas fa-hand-pointer mr-1"></i> Detaylar için tıklayın
-                    </div>
-                </div>
 
-                <!-- Eymen -->
-                <div class="team-member glass-panel rounded-2xl p-6 text-center group hover:border-orange-400 transition-all duration-300" onclick="openModal('eymen')">
-                    <div class="w-24 h-24 mx-auto mb-4 rounded-full bg-gradient-to-br from-orange-400 to-red-500 flex items-center justify-center text-3xl font-bold shadow-lg group-hover:scale-110 transition-transform">
-                        E
-                    </div>
-                    <h3 class="font-bold text-lg mb-1">Ahmet Eymen Alkaptan</h3>
-                    <p class="text-orange-400 text-sm font-semibold mb-2">Proje Üyesi</p>
-                    <p class="text-gray-400 text-sm mb-3">Scratch oyun geliştirme, karakter tasarımı ve oyun mekanikleri</p>
-                    
-                    <div class="mt-4 flex justify-center gap-2 flex-wrap">
-                        <span class="px-3 py-1 rounded-full bg-orange-500/20 text-orange-300 text-xs">Scratch</span>
-                        <span class="px-3 py-1 rounded-full bg-red-500/20 text-red-300 text-xs">Oyun Tasarımı</span>
-                    </div>
-                    <div class="mt-3 text-xs text-gray-500">
-                        <i class="fas fa-hand-pointer mr-1"></i> Detaylar için tıklayın
+                    <div class="glass-panel rounded-2xl p-6 border-l-4 border-yellow-400">
+                        <h3 class="font-bold text-lg mb-3 flex items-center gap-2">
+                            <i class="fas fa-trophy text-yellow-400"></i>
+                            Teknofest 2026
+                        </h3>
+                        <p class="text-gray-300 text-sm leading-relaxed">
+                            Bu proje, Türkiye'nin en büyük teknoloji festivali Teknofest 2026 kapsamında sunulmaktadır. 
+                            Yarışmanın "Çevre ve Enerji" kategorisinde değerlendirilmeye uygun olarak hazırlanmıştır.
+                        </p>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- Scratch Section - Eymen -->
+        <!-- Scratch Section -->
         <section id="scratch" class="section-content hidden glass-panel rounded-3xl p-8 md:p-12 border border-orange-500/30">
             <div class="flex items-center gap-4 mb-8">
                 <div class="w-12 h-12 rounded-full bg-gradient-to-br from-orange-400 to-red-500 flex items-center justify-center">
@@ -525,7 +456,7 @@
                 </div>
                 <div>
                     <h2 class="font-orbitron text-3xl font-bold">Scratch Oyunu</h2>
-                    <p class="text-gray-400 mt-1">Ahmet Eymen Alkaptan tarafından geliştirilen Scratch projesi</p>
+                    <p class="text-gray-400 mt-1">İklim değişikliği farkındalık oyunu</p>
                 </div>
             </div>
 
@@ -538,8 +469,8 @@
                     </div>
                     <div class="mt-4 flex justify-between items-center">
                         <div class="text-sm text-gray-400">
-                            <i class="fas fa-user mr-2 text-orange-400"></i>
-                            Geliştirici: Ahmet Eymen Alkaptan
+                            <i class="fas fa-gamepad mr-2 text-orange-400"></i>
+                            İklim Değişikliği Farkındalık Oyunu
                         </div>
                         <a href="https://scratch.mit.edu/projects/1218225288/" target="_blank" class="px-4 py-2 rounded-lg bg-orange-500 hover:bg-orange-600 text-white text-sm font-semibold transition-colors">
                             <i class="fas fa-external-link-alt mr-2"></i>
@@ -555,7 +486,8 @@
                             Oyun Hakkında
                         </h3>
                         <p class="text-gray-300 text-sm leading-relaxed mb-4">
-                            Bu oyun Ahmet Eymen Alkaptan tarafından MIT Scratch platformunda kodlanmıştır. Oyunun amacı Ortaokul öğrencilerine İklim değişikliği hakkında farkındalık kazandırmaktır. Daha fazla bilgi için Scratch sayfasını ziyaret ediniz.
+                            Bu oyun MIT Scratch platformunda kodlanmıştır. Oyunun amacı ortaokul öğrencilerine 
+                            iklim değişikliği hakkında farkındalık kazandırmaktır. Eğlenceli ve öğretici bir deneyim sunar.
                         </p>
                         <div class="p-3 rounded-lg bg-orange-500/10 border border-orange-500/30">
                             <p class="text-xs text-orange-300">
@@ -577,8 +509,8 @@
                                 <span class="text-white">1218225288</span>
                             </div>
                             <div class="flex justify-between items-center p-2 rounded bg-white/5">
-                                <span class="text-gray-400">Geliştirici:</span>
-                                <span class="text-white">Ahmet Eymen Alkaptan</span>
+                                <span class="text-gray-400">Kategori:</span>
+                                <span class="text-white">Eğitim / Farkındalık</span>
                             </div>
                         </div>
                     </div>
@@ -586,7 +518,7 @@
             </div>
         </section>
 
-        <!-- ArcGIS Section - Batu -->
+        <!-- ArcGIS Section -->
         <section id="arcgis" class="section-content hidden glass-panel rounded-3xl p-8 md:p-12 border border-blue-500/30">
             <div class="flex items-center gap-4 mb-8">
                 <div class="w-12 h-12 rounded-full bg-gradient-to-br from-blue-400 to-cyan-500 flex items-center justify-center">
@@ -594,7 +526,7 @@
                 </div>
                 <div>
                     <h2 class="font-orbitron text-3xl font-bold">Göller Yöresi StoryMap</h2>
-                    <p class="text-gray-400 mt-1">Abdullah Batu Baddal tarafından ArcGIS ile hazırlanan coğrafi keşif projesi</p>
+                    <p class="text-gray-400 mt-1">Coğrafi keşif ve haritalama projesi</p>
                 </div>
             </div>
 
@@ -621,8 +553,8 @@
                 </div>
                 <div class="mt-4 flex justify-between items-center">
                     <div class="text-sm text-gray-400">
-                        <i class="fas fa-user mr-2 text-blue-400"></i>
-                        Hazırlayan: Abdullah Batu Baddal
+                        <i class="fas fa-map mr-2 text-blue-400"></i>
+                        Göller Yöresi Coğrafi Keşif
                     </div>
                     <div class="flex gap-3">
                         <button onclick="reloadArcGIS()" class="px-4 py-2 rounded-lg glass-panel hover:bg-white/10 text-white text-sm font-semibold transition-colors">
@@ -683,14 +615,14 @@
 
             <div class="mt-6 p-4 rounded-lg bg-blue-500/10 border border-blue-500/30">
                 <p class="text-sm text-gray-300">
-                    <i class="fas fa-user mr-2 text-blue-400"></i>
-                    <strong>Abdullah Batu Baddal</strong> tarafından hazırlanan bu StoryMap, Göller Yöresi'nin coğrafi, 
-                    tarihi ve kültürel özelliklerini interaktif haritalar üzerinden sunmaktadır.
+                    <i class="fas fa-info-circle mr-2 text-blue-400"></i>
+                    Bu StoryMap, Göller Yöresi'nin coğrafi, tarihi ve kültürel özelliklerini interaktif haritalar üzerinden sunmaktadır. 
+                    Eğirdir, Burdur ve Kovada gölleri hakkında detaylı bilgilere ulaşabilirsiniz.
                 </p>
             </div>
         </section>
 
-        <!-- Arduino Section - Batu -->
+        <!-- Arduino Section -->
         <section id="arduino" class="section-content hidden glass-panel rounded-3xl p-8 md:p-12 border border-green-500/30">
             <div class="flex items-center gap-4 mb-8">
                 <div class="w-12 h-12 rounded-full bg-gradient-to-br from-green-400 to-emerald-600 flex items-center justify-center">
@@ -698,7 +630,7 @@
                 </div>
                 <div>
                     <h2 class="font-orbitron text-3xl font-bold">İklim Simülasyonu</h2>
-                    <p class="text-gray-400 mt-1">Abdullah Batu Baddal tarafından geliştirilen Arduino ve Processing projesi</p>
+                    <p class="text-gray-400 mt-1">Arduino ve Processing projesi</p>
                 </div>
             </div>
 
@@ -735,83 +667,83 @@
                             <rect x="175" y="100" width="150" height="200" fill="#00979d" rx="5" opacity="0.9"/>
                             <text x="250" y="140" text-anchor="middle" fill="white" font-size="14" font-weight="bold">ARDUINO</text>
                             <text x="250" y="160" text-anchor="middle" fill="white" font-size="12">UNO R3</text>
-                            
+
                             <!-- USB Port -->
                             <rect x="235" y="85" width="30" height="15" fill="#666"/>
-                            
+
                             <!-- Power Pins -->
                             <text x="190" y="190" fill="#ffd700" font-size="10">5V</text>
                             <text x="190" y="210" fill="#888" font-size="10">GND</text>
                             <text x="190" y="230" fill="#888" font-size="10">GND</text>
-                            
+
                             <!-- Analog Pins -->
                             <text x="190" y="260" fill="#4ade80" font-size="10">A0</text>
                             <text x="190" y="280" fill="#4ade80" font-size="10">A1</text>
-                            
+
                             <!-- Digital Pins -->
                             <text x="310" y="190" fill="#f472b6" font-size="10">2</text>
                             <text x="310" y="210" fill="#f472b6" font-size="10">3</text>
                             <text x="310" y="230" fill="#f472b6" font-size="10">4</text>
-                            
+
                             <!-- Water Level Sensor -->
                             <rect x="50" y="50" width="80" height="60" fill="#3b82f6" rx="5" opacity="0.8"/>
                             <text x="90" y="85" text-anchor="middle" fill="white" font-size="11" font-weight="bold">SU SEVİYE</text>
                             <text x="90" y="100" text-anchor="middle" fill="white" font-size="10">SENSÖRÜ</text>
-                            
+
                             <!-- Sensor Lines -->
                             <line x1="130" y1="70" x2="175" y2="280" stroke="#4ade80" stroke-width="3"/>
                             <text x="150" y="170" fill="#4ade80" font-size="9">Sinyal (A1)</text>
-                            
+
                             <line x1="90" y1="110" x2="90" y2="300" stroke="#ffd700" stroke-width="2"/>
                             <line x1="90" y1="300" x2="175" y2="210" stroke="#ffd700" stroke-width="2"/>
                             <text x="120" y="250" fill="#ffd700" font-size="9">VCC</text>
-                            
+
                             <line x1="70" y1="110" x2="70" y2="320" stroke="#888" stroke-width="2"/>
                             <line x1="70" y1="320" x2="175" y2="230" stroke="#888" stroke-width="2"/>
                             <text x="100" y="270" fill="#888" font-size="9">GND</text>
-                            
+
                             <!-- Potentiometer -->
                             <circle cx="400" cy="80" r="35" fill="#8b5cf6" opacity="0.8"/>
                             <text x="400" y="85" text-anchor="middle" fill="white" font-size="10" font-weight="bold">POT</text>
                             <line x1="400" y1="45" x2="400" y2="20" stroke="#ffd700" stroke-width="2"/>
                             <line x1="400" y1="20" x2="325" y2="20" stroke="#ffd700" stroke-width="2"/>
                             <line x1="325" y1="20" x2="325" y2="190" stroke="#ffd700" stroke-width="2"/>
-                            
+
                             <line x1="365" y1="80" x2="325" y2="260" stroke="#4ade80" stroke-width="3"/>
                             <text x="340" y="170" fill="#4ade80" font-size="9">A0</text>
-                            
+
                             <!-- Buttons -->
                             <rect x="380" y="250" width="40" height="30" fill="#ef4444" rx="3"/>
                             <text x="400" y="270" text-anchor="middle" fill="white" font-size="9">BTN1</text>
                             <line x1="380" y1="265" x2="325" y2="265" stroke="#f472b6" stroke-width="2"/>
                             <line x1="325" y1="265" x2="325" y2="190" stroke="#f472b6" stroke-width="2"/>
                             <text x="350" y="240" fill="#f472b6" font-size="9">D2</text>
-                            
+
                             <rect x="380" y="300" width="40" height="30" fill="#ef4444" rx="3"/>
                             <text x="400" y="320" text-anchor="middle" fill="white" font-size="9">BTN2</text>
                             <line x1="380" y1="315" x2="325" y2="315" stroke="#f472b6" stroke-width="2"/>
                             <line x1="325" y1="315" x2="325" y2="210" stroke="#f472b6" stroke-width="2"/>
                             <text x="350" y="290" fill="#f472b6" font-size="9">D3</text>
-                            
+
                             <!-- Buzzer -->
                             <circle cx="420" cy="350" r="15" fill="#fbbf24"/>
                             <text x="420" y="355" text-anchor="middle" fill="#000" font-size="8" font-weight="bold">BZZ</text>
                             <line x1="405" y1="350" x2="325" y2="350" stroke="#f472b6" stroke-width="2"/>
                             <line x1="325" y1="350" x2="325" y2="230" stroke="#f472b6" stroke-width="2"/>
                             <text x="360" y="340" fill="#fbbf24" font-size="9">D4</text>
-                            
+
                             <!-- Ground connections -->
                             <line x1="435" y1="265" x2="470" y2="265" stroke="#888" stroke-width="2"/>
                             <line x1="435" y1="315" x2="470" y2="315" stroke="#888" stroke-width="2"/>
                             <line x1="470" y1="265" x2="470" y2="315" stroke="#888" stroke-width="2"/>
                             <line x1="435" y1="350" x2="450" y2="350" stroke="#888" stroke-width="2"/>
                             <line x1="450" y1="350" x2="450" y2="315" stroke="#888" stroke-width="2"/>
-                            
+
                             <!-- Water animation -->
                             <path d="M 60,120 Q 70,115 80,120 T 100,120 T 120,120" fill="none" stroke="#60a5fa" stroke-width="2" opacity="0.6" class="water-level"/>
                         </svg>
                     </div>
-                    
+
                     <div class="mt-4 grid grid-cols-2 gap-2 text-xs">
                         <div class="flex items-center gap-2">
                             <span class="w-3 h-3 rounded-full bg-blue-500"></span>
@@ -850,7 +782,7 @@
                             </div>
                             <span class="text-xs text-gray-400">1x</span>
                         </div>
-                        
+
                         <div class="flex items-center justify-between p-3 rounded-lg bg-white/5 hover:bg-white/10 transition-colors">
                             <div class="flex items-center gap-3">
                                 <i class="fas fa-water text-blue-400"></i>
@@ -861,7 +793,7 @@
                             </div>
                             <span class="text-xs text-gray-400">1x</span>
                         </div>
-                        
+
                         <div class="flex items-center justify-between p-3 rounded-lg bg-white/5 hover:bg-white/10 transition-colors">
                             <div class="flex items-center gap-3">
                                 <i class="fas fa-sliders-h text-purple-400"></i>
@@ -872,7 +804,7 @@
                             </div>
                             <span class="text-xs text-gray-400">1x</span>
                         </div>
-                        
+
                         <div class="flex items-center justify-between p-3 rounded-lg bg-white/5 hover:bg-white/10 transition-colors">
                             <div class="flex items-center gap-3">
                                 <i class="fas fa-toggle-on text-red-400"></i>
@@ -883,7 +815,7 @@
                             </div>
                             <span class="text-xs text-gray-400">2x</span>
                         </div>
-                        
+
                         <div class="flex items-center justify-between p-3 rounded-lg bg-white/5 hover:bg-white/10 transition-colors">
                             <div class="flex items-center gap-3">
                                 <i class="fas fa-volume-up text-yellow-400"></i>
@@ -894,7 +826,7 @@
                             </div>
                             <span class="text-xs text-gray-400">1x</span>
                         </div>
-                        
+
                         <div class="flex items-center justify-between p-3 rounded-lg bg-white/5 hover:bg-white/10 transition-colors">
                             <div class="flex items-center gap-3">
                                 <i class="fas fa-plug text-gray-400"></i>
@@ -920,7 +852,7 @@
                 </div>
             </div>
 
-            <!-- Code Section - Simplified -->
+            <!-- Code Section -->
             <div class="glass-panel rounded-2xl p-6">
                 <div class="flex justify-between items-center mb-4">
                     <h3 class="font-bold text-lg flex items-center gap-2">
@@ -932,7 +864,7 @@
                         Kodu İndir
                     </a>
                 </div>
-                
+
                 <div class="bg-gray-900 rounded-xl p-6 text-center">
                     <i class="fas fa-file-code text-5xl text-green-400 mb-4"></i>
                     <h4 class="font-bold text-lg mb-2">Processing Kodu</h4>
@@ -989,10 +921,10 @@
             <div class="mt-6 p-4 rounded-lg bg-blue-500/10 border border-blue-500/30">
                 <h4 class="font-semibold text-blue-400 mb-2"><i class="fas fa-info-circle mr-2"></i>Proje Hakkında:</h4>
                 <p class="text-sm text-gray-300">
-                    Bu proje <strong>Abdullah Batu Baddal</strong> tarafından geliştirilmiştir. Arduino Uno R3 kullanılarak 
-                    iklim değişikliği simülasyonu yapılmaktadır. İki senaryo bulunur: <strong>Senaryo A (İhmal Edilen Dünya)</strong> - 
-                    potansiyometre ile yılları ilerleterek çevre kirliliğini gözlemleme, ve <strong>Senaryo B (Kurtarılan Dünya)</strong> - 
-                    su sensörü ile gezegeni "besleyerek" ekosistemi iyileştirme. Processing ile görsel simülasyon eşlik eder.
+                    Arduino Uno R3 kullanılarak iklim değişikliği simülasyonu yapılmaktadır. İki senaryo bulunur: 
+                    <strong>Senaryo A (İhmal Edilen Dünya)</strong> - potansiyometre ile yılları ilerleterek çevre kirliliğini gözlemleme, 
+                    ve <strong>Senaryo B (Kurtarılan Dünya)</strong> - su sensörü ile gezegeni "besleyerek" ekosistemi iyileştirme. 
+                    Processing ile görsel simülasyon eşlik eder.
                 </p>
             </div>
         </section>
@@ -1006,145 +938,12 @@
                 <i class="fas fa-rocket text-tech-blue"></i>
                 <span class="font-orbitron font-bold">TEKNOFEST 2026</span>
             </div>
-            <p class="text-gray-500 text-sm mb-2">Abdullah Batu Baddal & Ahmet Eymen Alkaptan | Hayriye Uymazsoy Danışmanlığında</p>
+            <p class="text-gray-500 text-sm mb-2">İklim Değişikliği Farkındalık Projesi</p>
             <p class="text-gray-600 text-xs">© 2026 Tüm hakları saklıdır.</p>
         </div>
     </footer>
 
-    <!-- Team Member Modal -->
-    <div id="teamModal" class="modal-overlay" onclick="closeModal(event)">
-        <div class="modal-content" onclick="event.stopPropagation()">
-            <button class="modal-close" onclick="closeModal()">
-                <i class="fas fa-times"></i>
-            </button>
-            
-            <div id="modalContent">
-                <!-- Content will be injected by JavaScript -->
-            </div>
-        </div>
-    </div>
-
     <script>
-        // Team member data
-        const teamData = {
-            danisman: {
-                name: "Hayriye Uymazsoy",
-                role: "Danışman Öğretmen",
-                color: "yellow",
-                icon: "fa-chalkboard-teacher",
-                description: "Proje danışmanlığı ve yönlendirme",
-                details: [
-                    "Proje fikrinin geliştirilmesi ve şekillendirilmesi",
-                    "Teknik danışmanlık ve mentorluk",
-                    "Ekip koordinasyonu ve yönetimi",
-                    "Teknofest başvuru süreçlerinin takibi",
-                    "Proje raporlaması ve dokümantasyon"
-                ],
-                skills: ["Proje Yönetimi", "Mentorluk", "Eğitim", "Koordinasyon"]
-            },
-            batu: {
-                name: "Abdullah Batu Baddal",
-                role: "Proje Üyesi",
-                color: "blue",
-                icon: "fa-microchip",
-                description: "ArcGIS haritalama, Arduino iklim simülasyonu ve Processing görselleştirme",
-                details: [
-                    "ArcGIS StoryMap ile Göller Yöresi coğrafi keşif projesi",
-                    "Arduino Uno R3 ile iklim değişikliği simülasyonu",
-                    "Processing ile gerçek zamanlı veri görselleştirme",
-                    "Su seviye sensörü ve potansiyometre entegrasyonu",
-                    "Oyun içi ses efektleri (SFX) tasarımı ve üretimi",
-                    "Devre tasarımı ve prototipleme"
-                ],
-                skills: ["ArcGIS", "Arduino", "Processing", "Elektronik", "Ses Tasarımı", "Haritalama"]
-            },
-            eymen: {
-                name: "Ahmet Eymen Alkaptan",
-                role: "Proje Üyesi",
-                color: "orange",
-                icon: "fa-gamepad",
-                description: "Scratch oyun geliştirme, karakter tasarımı ve oyun mekanikleri",
-                details: [
-                    "MIT Scratch platformunda iklim değişikliği farkındalık oyunu",
-                    "Karakter tasarımı ve animasyon",
-                    "Oyun mekanikleri ve seviye tasarımı",
-                    "Eğitici içerik oluşturma",
-                    "Oyun içi arka plan müzikleri ve ses efektleri (SFX) tasarımı",
-                    "Kullanıcı deneyimi optimizasyonu"
-                ],
-                skills: ["Scratch", "Oyun Tasarımı", "Müzik", "Animasyon", "UX Tasarımı"]
-            }
-        };
-
-        // Modal functions
-        function openModal(memberId) {
-            const member = teamData[memberId];
-            const modal = document.getElementById('teamModal');
-            const content = document.getElementById('modalContent');
-            
-            const colorClasses = {
-                yellow: 'text-yellow-400 border-yellow-400',
-                blue: 'text-blue-400 border-blue-400',
-                orange: 'text-orange-400 border-orange-400'
-            };
-            
-            const bgClasses = {
-                yellow: 'bg-yellow-500/20 text-yellow-300',
-                blue: 'bg-blue-500/20 text-blue-300',
-                orange: 'bg-orange-500/20 text-orange-300'
-            };
-            
-            content.innerHTML = `
-                <div class="text-center mb-6">
-                    <div class="w-20 h-20 mx-auto mb-4 rounded-full bg-gradient-to-br from-${member.color}-400 to-${member.color === 'yellow' ? 'orange' : member.color === 'blue' ? 'blue-600' : 'red'}-500 flex items-center justify-center text-3xl font-bold shadow-lg">
-                        <i class="fas ${member.icon} text-white"></i>
-                    </div>
-                    <h3 class="font-orbitron text-2xl font-bold ${colorClasses[member.color].split(' ')[0]} mb-1">${member.name}</h3>
-                    <p class="${colorClasses[member.color].split(' ')[0]} font-semibold">${member.role}</p>
-                </div>
-                
-                <div class="mb-6">
-                    <h4 class="font-bold text-lg mb-3 flex items-center gap-2">
-                        <i class="fas fa-tasks ${colorClasses[member.color].split(' ')[0]}"></i>
-                        Görev ve Sorumluluklar
-                    </h4>
-                    <ul class="space-y-2">
-                        ${member.details.map(detail => `
-                            <li class="flex items-start gap-2 text-sm text-gray-300">
-                                <i class="fas fa-check-circle ${colorClasses[member.color].split(' ')[0]} mt-1 flex-shrink-0"></i>
-                                <span>${detail}</span>
-                            </li>
-                        `).join('')}
-                    </ul>
-                </div>
-                
-                <div>
-                    <h4 class="font-bold text-lg mb-3 flex items-center gap-2">
-                        <i class="fas fa-tools ${colorClasses[member.color].split(' ')[0]}"></i>
-                        Yetkinlikler
-                    </h4>
-                    <div class="flex flex-wrap gap-2">
-                        ${member.skills.map(skill => `
-                            <span class="px-3 py-1 rounded-full ${bgClasses[member.color]} text-xs font-semibold">
-                                ${skill}
-                            </span>
-                        `).join('')}
-                    </div>
-                </div>
-            `;
-            
-            modal.classList.add('active');
-            document.body.style.overflow = 'hidden';
-        }
-
-        function closeModal(event) {
-            if (!event || event.target.id === 'teamModal' || event.target.closest('.modal-close')) {
-                const modal = document.getElementById('teamModal');
-                modal.classList.remove('active');
-                document.body.style.overflow = '';
-            }
-        }
-
         // Particle Animation
         function createParticles() {
             const container = document.getElementById('particles');
@@ -1164,14 +963,14 @@
             document.querySelectorAll('.section-content').forEach(section => {
                 section.classList.add('hidden');
             });
-            
+
             document.getElementById(sectionId).classList.remove('hidden');
-            
+
             document.querySelectorAll('.tab-btn').forEach(btn => {
                 btn.classList.remove('tab-active');
             });
             document.getElementById('tab-' + sectionId).classList.add('tab-active');
-            
+
             document.getElementById(sectionId).scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
 
@@ -1199,8 +998,8 @@
             }
         });
 
-        // Initialize with team section
-        showSection('team');
+        // Initialize with intro section
+        showSection('intro');
 
         // Navbar scroll effect
         window.addEventListener('scroll', () => {
@@ -1209,13 +1008,6 @@
                 nav.classList.add('bg-gray-900/90');
             } else {
                 nav.classList.remove('bg-gray-900/90');
-            }
-        });
-
-        // Keyboard navigation for modal
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') {
-                closeModal();
             }
         });
     </script>
